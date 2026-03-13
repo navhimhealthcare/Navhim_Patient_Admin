@@ -40,6 +40,7 @@ export default function DoctorPage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Doctor | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Doctor | null>(null);
+  console.log("doctors", doctors);
 
   const filtered = useMemo(
     () => filterDoctors(doctors, filters),

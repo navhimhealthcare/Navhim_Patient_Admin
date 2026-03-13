@@ -8,6 +8,7 @@ import { patientService } from "../services/patientService";
 import {
   buildAddPatientPayload,
   buildUpdatePatientPayload,
+  isOnlyStatusChanged,
 } from "../helpers/patientHelper";
 import showToast from "../../../utils/toast";
 
@@ -67,7 +68,15 @@ export const usePatients = () => {
       } else {
         await fetchAll();
       }
-      showToast.success(`${form.name} updated successfully!`);
+
+      const original = patients.find((p) => p._id === id);
+      if (original && isOnlyStatusChanged(form, original)) {
+        showToast.success(
+          `Patient account ${form.isActive ? "activated" : "deactivated"}!`,
+        );
+      } else {
+        showToast.success(`${form.name} updated successfully!`);
+      }
       return true;
     } catch (err: any) {
       showToast.error(

@@ -52,7 +52,7 @@ export default function LoginPage() {
       if (data?.success) {
         await setLocalStorageItem(
           LOCAL_DATA_STORE.JWT_TOKEN,
-          data.data.token,
+          data.data.accessToken,
         );
         await setLocalStorageItem(
           LOCAL_DATA_STORE.USER_DATA,

@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { capitalize, removeAllLocalStorageItems } from "../../utils/helpers";
+import {
+  capitalize,
+  logout,
+  logoutUser,
+  removeAllLocalStorageItems,
+} from "../../utils/helpers";
 import Avatar from "../Avatar/Avatar";
 import Input from "../Input/Input";
 import showToast from "../../utils/toast";
@@ -50,7 +55,7 @@ export default function Topbar({ onToggleSidebar }) {
   const handleLogout = async () => {
     try {
       await withLoader(async () => {
-        await removeAllLocalStorageItems();
+        await logoutUser();
       }, "Logging out…");
       showToast.success("Logged out successfully. See you soon!");
       setTimeout(() => navigate("/"), 1000);

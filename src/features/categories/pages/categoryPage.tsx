@@ -1,18 +1,54 @@
 import { useState, useMemo } from "react";
 import { useCategories } from "../hooks/useCategories";
-import { Category } from "../types/category.types";
+import {
+  Category,
+  SubCategory,
+  CategoryFormValues,
+  SubCategoryFormValues,
+} from "../types/category.types";
 import { SectionLoader } from "../../../components/Loader/Loader";
+import CategoryModal from "../components/categoryModal";
+import SubCategoryModal from "../components/subCategoryModal";
+import DeleteModal from "../components/deleteModal";
 import editIcon from "../../../assets/images/edit.png";
 import deleteIcon from "../../../assets/images/delete.png";
 import searchIcon from "../../../assets/images/search.png";
 import folderIcon from "../../../assets/images/folder.png";
 
+type DeleteTarget =
+  | { type: "category"; item: Category; categoryId?: string }
+  | { type: "subCategory"; item: SubCategory; categoryId: string }
+  | null;
+
 export default function CategoryPage() {
-  const { categories, loading } = useCategories();
+  const {
+    categories,
+    loading,
+    actionLoading,
+    addCategory,
+    editCategory,
+    removeCategory,
+    toggleCategory,
+    addSubCategory,
+    editSubCategory,
+    removeSubCategory,
+    toggleSubCategory,
+  } = useCategories();
 
   const [selectedCat, setSelectedCat] = useState<Category | null>(null);
   const [search, setSearch] = useState("");
   const [subSearch, setSubSearch] = useState("");
+
+  const [catModal, setCatModal] = useState<{
+    open: boolean;
+    data: Category | null;
+  }>({ open: false, data: null });
+  const [subModal, setSubModal] = useState<{
+    open: boolean;
+    data: SubCategory | null;
+    parent: Category | null;
+  }>({ open: false, data: null, parent: null });
+  const [deleteModal, setDeleteModal] = useState<DeleteTarget>(null);
 
   // Keep selectedCat in sync after edits/toggles
   const syncedSelected = useMemo(
@@ -39,6 +75,31 @@ export default function CategoryPage() {
     [syncedSelected, subSearch],
   );
 
+  const handleCatSubmit = (form: CategoryFormValues) =>
+    catModal.data ? editCategory(catModal.data._id, form) : addCategory(form);
+
+  const handleSubSubmit = (form: SubCategoryFormValues) =>
+    subModal.data
+      ? editSubCategory(subModal.data._id, form)
+      : addSubCategory(form);
+
+  const handleDelete = async () => {
+    if (!deleteModal) return;
+    if (deleteModal.type === "category") {
+      const ok = await removeCategory(deleteModal.item as Category);
+      if (ok) {
+        setDeleteModal(null);
+        if (syncedSelected?._id === deleteModal.item._id) setSelectedCat(null);
+      }
+    } else {
+      const ok = await removeSubCategory(
+        deleteModal.item as SubCategory,
+        deleteModal.categoryId!,
+      );
+      if (ok) setDeleteModal(null);
+    }
+  };
+
   const totalSubs = categories.reduce((s, c) => s + c.subCategories.length, 0);
   const activeCats = categories.filter((c) => c.isActive).length;
 
@@ -54,7 +115,10 @@ export default function CategoryPage() {
             {categories.length} categories · {totalSubs} sub-categories
           </p>
         </div>
-        <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-primary to-brand-gradient text-white text-[13.5px] font-semibold shadow-btn hover:opacity-90 hover:-translate-y-0.5 transition-all duration-200">
+        <button
+          onClick={() => setCatModal({ open: true, data: null })}
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-primary to-brand-gradient text-white text-[13.5px] font-semibold shadow-btn hover:opacity-90 hover:-translate-y-0.5 transition-all duration-200"
+        >
           <span className="text-lg leading-none">+</span> Add Category
         </button>
       </div>
@@ -168,7 +232,10 @@ export default function CategoryPage() {
                 <p className="text-[13px] font-semibold text-gray-400">
                   No categories found
                 </p>
-                <button className="text-[12px] text-brand-primary font-semibold hover:underline">
+                <button
+                  onClick={() => setCatModal({ open: true, data: null })}
+                  className="text-[12px] text-brand-primary font-semibold hover:underline"
+                >
                   + Add one
                 </button>
               </div>
@@ -230,6 +297,7 @@ export default function CategoryPage() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
+                              setCatModal({ open: true, data: cat });
                             }}
                             className="w-7 h-7 rounded-md hover:bg-brand-lighter flex items-center justify-center transition-all"
                             title="Edit"
@@ -243,6 +311,7 @@ export default function CategoryPage() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
+                              setDeleteModal({ type: "category", item: cat });
                             }}
                             className="w-7 h-7 rounded-md hover:bg-danger-bg flex items-center justify-center transition-all"
                             title="Delete"
@@ -318,13 +387,27 @@ export default function CategoryPage() {
                       className="h-9 pl-8 pr-3 bg-surface rounded-xl text-[12px] font-medium text-navy placeholder:text-gray-300 outline-none focus:ring-2 focus:ring-brand-primary/10 border border-transparent focus:border-brand-primary/20 transition-all w-72"
                     />
                   </div>
-                  <button className="h-9 px-3 rounded-xl border border-brand-primary/20 text-brand-primary text-[12px] font-semibold hover:bg-brand-lighter transition-colors flex items-center gap-1.5">
+                  <button
+                    onClick={() =>
+                      setCatModal({ open: true, data: syncedSelected })
+                    }
+                    className="h-9 px-3 rounded-xl border border-brand-primary/20 text-brand-primary text-[12px] font-semibold hover:bg-brand-lighter transition-colors flex items-center gap-1.5"
+                  >
                     <img src={editIcon} alt="edit" className="w-3.5 h-3.5" />{" "}
                     Edit
                   </button>
 
                   {/* Add sub */}
-                  <button className="h-9 px-4 rounded-xl bg-gradient-to-r from-brand-primary to-brand-gradient text-white text-[12.5px] font-semibold hover:opacity-90 transition-opacity flex items-center gap-1.5">
+                  <button
+                    onClick={() =>
+                      setSubModal({
+                        open: true,
+                        data: null,
+                        parent: syncedSelected,
+                      })
+                    }
+                    className="h-9 px-4 rounded-xl bg-gradient-to-r from-brand-primary to-brand-gradient text-white text-[12.5px] font-semibold hover:opacity-90 transition-opacity flex items-center gap-1.5"
+                  >
                     + Add Sub
                   </button>
                 </div>
@@ -346,7 +429,16 @@ export default function CategoryPage() {
                         : `Add your first sub-category to "${syncedSelected.name}"`}
                     </p>
                     {!subSearch && (
-                      <button className="mt-1 px-4 py-2 rounded-xl bg-brand-lighter text-brand-primary text-[12.5px] font-semibold hover:bg-brand-soft transition-colors">
+                      <button
+                        onClick={() =>
+                          setSubModal({
+                            open: true,
+                            data: null,
+                            parent: syncedSelected,
+                          })
+                        }
+                        className="mt-1 px-4 py-2 rounded-xl bg-brand-lighter text-brand-primary text-[12.5px] font-semibold hover:bg-brand-soft transition-colors"
+                      >
                         + Add Sub-Category
                       </button>
                     )}
@@ -408,7 +500,16 @@ export default function CategoryPage() {
                           className="absolute inset-x-0 bottom-0 rounded-b-2xl bg-white border-t border-brand-primary/10
                           flex items-center justify-center gap-1 py-2 opacity-0 group-hover:opacity-100 transition-opacity"
                         >
-                          <button className="flex items-center gap-1 px-3 py-1 rounded-lg hover:bg-brand-lighter text-brand-primary text-[11.5px] font-semibold transition-colors">
+                          <button
+                            onClick={() =>
+                              setSubModal({
+                                open: true,
+                                data: sub,
+                                parent: syncedSelected,
+                              })
+                            }
+                            className="flex items-center gap-1 px-3 py-1 rounded-lg hover:bg-brand-lighter text-brand-primary text-[11.5px] font-semibold transition-colors"
+                          >
                             <img
                               src={editIcon}
                               alt="edit"
@@ -417,7 +518,16 @@ export default function CategoryPage() {
                             Edit
                           </button>
                           <div className="w-px h-4 bg-gray-200" />
-                          <button className="flex items-center gap-1 px-3 py-1 rounded-lg hover:bg-danger-bg text-danger text-[11.5px] font-semibold transition-colors">
+                          <button
+                            onClick={() =>
+                              setDeleteModal({
+                                type: "subCategory",
+                                item: sub,
+                                categoryId: syncedSelected._id,
+                              })
+                            }
+                            className="flex items-center gap-1 px-3 py-1 rounded-lg hover:bg-danger-bg text-danger text-[11.5px] font-semibold transition-colors"
+                          >
                             <img
                               src={deleteIcon}
                               alt="delete"
@@ -430,7 +540,16 @@ export default function CategoryPage() {
                     ))}
 
                     {/* Add sub card */}
-                    <button className="border-2 border-dashed border-brand-primary/20 hover:border-brand-primary rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-brand-primary hover:bg-brand-lighter transition-all duration-200 min-h-[140px]">
+                    <button
+                      onClick={() =>
+                        setSubModal({
+                          open: true,
+                          data: null,
+                          parent: syncedSelected,
+                        })
+                      }
+                      className="border-2 border-dashed border-brand-primary/20 hover:border-brand-primary rounded-2xl p-4 flex flex-col items-center justify-center gap-2 text-brand-primary hover:bg-brand-lighter transition-all duration-200 min-h-[140px]"
+                    >
                       <div className="w-10 h-10 rounded-xl bg-brand-lighter flex items-center justify-center">
                         <span className="text-brand-primary text-xl font-bold">
                           +
@@ -459,13 +578,44 @@ export default function CategoryPage() {
                   sub-categories
                 </p>
               </div>
-              <button className="px-4 py-2 rounded-xl bg-brand-lighter text-brand-primary text-[12.5px] font-semibold hover:bg-brand-soft transition-colors">
+              <button
+                onClick={() => setCatModal({ open: true, data: null })}
+                className="px-4 py-2 rounded-xl bg-brand-lighter text-brand-primary text-[12.5px] font-semibold hover:bg-brand-soft transition-colors"
+              >
                 + Add Category
               </button>
             </div>
           )}
         </div>
       </div>
+
+      {/* ── Modals ── */}
+      <CategoryModal
+        open={catModal.open}
+        onClose={() => setCatModal({ open: false, data: null })}
+        onSubmit={handleCatSubmit}
+        initialData={catModal.data}
+        loading={actionLoading}
+      />
+
+      <SubCategoryModal
+        open={subModal.open}
+        onClose={() => setSubModal({ open: false, data: null, parent: null })}
+        onSubmit={handleSubSubmit}
+        initialData={subModal.data}
+        defaultCategory={subModal.parent}
+        categories={categories}
+        loading={actionLoading}
+      />
+
+      <DeleteModal
+        open={!!deleteModal}
+        onClose={() => setDeleteModal(null)}
+        onConfirm={handleDelete}
+        loading={actionLoading}
+        title={deleteModal?.type === "category" ? "Category" : "Sub-Category"}
+        name={deleteModal?.item.name ?? ""}
+      />
     </div>
   );
 }

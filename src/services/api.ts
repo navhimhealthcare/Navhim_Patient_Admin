@@ -32,20 +32,3 @@ export const appointmentsAPI = {
   delete:   (id)     => del(`/appointments/${id}`),
 }
 
-// ── Patients ──────────────────────────────────────────────────────────
-export const patientsAPI = {
-  getAll:   (params) => get('/patients', params),
-  getById:  (id)     => get(`/patients/${id}`),
-  create:   (data)   => post('/patients', data),
-  update:   (id, data) => put(`/patients/${id}`, data),
-  delete:   (id)     => del(`/patients/${id}`),
-}
-
-// ── Doctors ───────────────────────────────────────────────────────────
-export const doctorsAPI = {
-  getAll:   (params) => get('/doctors', params),
-  getById:  (id)     => get(`/doctors/${id}`),
-  create:   (data)   => post('/doctors', data),
-  update:   (id, data) => put(`/doctors/${id}`, data),
-  delete:   (id)     => del(`/doctors/${id}`),
-}

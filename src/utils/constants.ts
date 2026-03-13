@@ -8,7 +8,8 @@ const patientsIcon = "/src/assets/images/patient.png";
 const notificationIcon = "/src/assets/images/notification.png";
 const settingIcon = "/src/assets/images/setting.png";
 const hospitalIcon = "/src/assets/images/hospital.png";
-
+const categoryIcon = "/src/assets/images/category.png";
+const communityPostIcon = "/src/assets/images/communityPost.png";
 export const NAV_ITEMS = [
   {
     section: "Main Menu",
@@ -19,7 +20,7 @@ export const NAV_ITEMS = [
         icon: appointmentsIcon,
         iconFilter: "brand",
         path: "/app/appointments",
-        badge: 12,
+        // badge: 12,
         badgeColor: "blue",
       },
       {
@@ -37,7 +38,18 @@ export const NAV_ITEMS = [
         badgeColor: "yellow",
       },
       { label: "Hospital", icon: hospitalIcon, path: "/app/hospital" },
-      { label: "Category", icon: hospitalIcon, path: "/app/categories" },
+      {
+        label: "Category",
+        icon: categoryIcon,
+        iconFilter: "brand",
+        path: "/app/categories",
+      },
+      {
+        label: "Community",
+        icon: communityPostIcon,
+        iconFilter: "brand",
+        path: "/app/community",
+      },
     ],
   },
   {
@@ -45,6 +57,7 @@ export const NAV_ITEMS = [
     items: [
       // { label: 'Analytics',     icon: reportIcon, path: '/app/analytics' },
       { label: "Reports", icon: reportIcon, path: "/app/reports" },
+      { label: "About Us", icon: reportIcon, path: "/app/aboutUs" },
       {
         label: "Notifications",
         icon: notificationIcon,

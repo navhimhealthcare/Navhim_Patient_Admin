@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 
-import AppointmentsPage from "../features/appointments/pages/AppointmentsPage";
+// import AppointmentsPage from "../features/appointments/pages/AppointmentsPage";
 import DashboardPage from "../features/dashboard/pages/DashboardPage";
 import DoctorsPage from "../features/doctors/pages/DoctorsPage";
 import LandingPage from "../features/landing/pages/LandingPage";
@@ -10,7 +10,9 @@ import PatientsPage from "../features/patients/pages/PatientsPage";
 import AuthGuard from "../components/Guards/AuthGuard";
 import GuestGuard from "../components/Guards/GuestGuard";
 import HospitalPage from "../features/hospital/page/hospitalPage";
-import CategoryPage from '../features/categories/pages/categoryPage'
+import CategoryPage from "../features/categories/pages/categoryPage";
+import CommunityPage from "../features/community/pages/communityPage";
+import AppointmentsPage from "../features/appointments/pages/appointmentsPage";
 
 export default function AppRoutes({ sidebarCollapsed, toggleSidebar }: any) {
   return (
@@ -40,6 +42,7 @@ export default function AppRoutes({ sidebarCollapsed, toggleSidebar }: any) {
         <Route path="doctors" element={<DoctorsPage />} />
         <Route path="hospital" element={<HospitalPage />} />
         <Route path="categories" element={<CategoryPage />} />
+        <Route path="community" element={<CommunityPage />} />
       </Route>
     </Routes>
   );
