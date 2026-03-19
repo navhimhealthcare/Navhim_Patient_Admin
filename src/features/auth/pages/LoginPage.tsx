@@ -3,8 +3,8 @@ import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
 import showToast from "../../../utils/toast";
 import { useLoader } from "../../../App";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
 import { loginAPI } from "../authAPI";
 import { LOCAL_DATA_STORE } from "../../../utils/constants";
 import { setLocalStorageItem } from "../../../utils/helpers";
@@ -12,10 +12,21 @@ import { setLocalStorageItem } from "../../../utils/helpers";
 export default function LoginPage() {
   const navigate = useNavigate();
   const { withLoader } = useLoader();
+  const location = useLocation();
+  const initialized = useRef(false);
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (initialized.current) return;
+    const params = new URLSearchParams(location.search);
+    if (params.get("session") === "expired") {
+      showToast.warn("Your session has expired. Please sign in again.");
+    }
+    initialized.current = true;
+  }, [location]);
 
   const handleChange = (e) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -56,7 +67,7 @@ export default function LoginPage() {
         );
         await setLocalStorageItem(
           LOCAL_DATA_STORE.USER_DATA,
-          JSON.stringify(data.data.admin),
+          JSON.stringify(data.data),
         );
         showToast.success("Welcome back! Redirecting to dashboard…");
         setTimeout(() => navigate("/app/dashboard"), 800);
@@ -120,13 +131,9 @@ export default function LoginPage() {
             <button
               type="button"
               className="text-xs text-brand-primary font-semibold hover:underline"
-              onClick={() =>
-                showToast.info("Password reset link sent to your email.", {
-                  icon: true,
-                })
-              }
+              onClick={() => navigate("/forgot-password")}
             >
-              Forgot password?
+              Forgot password ?
             </button>
           </div>
           <Button

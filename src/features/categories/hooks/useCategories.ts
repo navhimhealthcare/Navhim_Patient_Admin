@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Category, SubCategory, CategoryFormValues, SubCategoryFormValues } from '../types/category.types'
 import { categoryService } from '../services/categoryService'
 import showToast           from '../../../utils/toast'
@@ -7,15 +7,21 @@ export const useCategories = () => {
   const [categories,    setCategories]    = useState<Category[]>([])
   const [loading,       setLoading]       = useState(true)
   const [actionLoading, setActionLoading] = useState(false)
+  const isFetching = useRef(false)
 
   const fetchAll = useCallback(async () => {
+    if (isFetching.current) return
+    isFetching.current = true
     setLoading(true)
     try {
       const res = await categoryService.getAll()
       setCategories(res.data.data)
     } catch (err: any) {
       showToast.error(err?.response?.data?.message || 'Failed to load categories.')
-    } finally { setLoading(false) }
+    } finally { 
+      setLoading(false)
+      isFetching.current = false
+    }
   }, [])
 
   useEffect(() => { fetchAll() }, [fetchAll])

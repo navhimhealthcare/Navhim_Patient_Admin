@@ -52,32 +52,49 @@ export const NAV_ITEMS = [
       },
     ],
   },
+  // {
+  //   section: "Reports",
+  //   items: [
+  //     { label: "Reports", icon: reportIcon, path: "/app/reports" },
+  //     {
+  //       label: "Notifications",
+  //       icon: notificationIcon,
+  //       iconFilter: "brand",
+  //       path: "/app/notifications",
+  //       badge: 5,
+  //       badgeColor: "red",
+  //     },
+  //   ],
+  // },
   {
-    section: "Reports",
+    section: "About Navhim",
     items: [
-      // { label: 'Analytics',     icon: reportIcon, path: '/app/analytics' },
-      { label: "Reports", icon: reportIcon, path: "/app/reports" },
-      { label: "About Us", icon: reportIcon, path: "/app/aboutUs" },
       {
-        label: "Notifications",
-        icon: notificationIcon,
-        iconFilter: "brand",
-        path: "/app/notifications",
-        badge: 5,
-        badgeColor: "red",
+        label: "About Navhim",
+        icon: "ℹ️",
+        path: "#",
+        subItems: [
+          { label: "Privacy & Policy", path: "/app/privacy" },
+          { label: "Support", path: "/app/support" },
+          { label: "Terms & Conditions", path: "/app/terms" },
+          { label: "Why Navhim", path: "/app/why-navhim" },
+          { label: "About Us", path: "/app/aboutUs" },
+        ],
       },
     ],
   },
   {
     section: "System",
+    items: [{ label: "Settings", icon: settingIcon, path: "/app/settings" }],
+  },
+  {
+    section: "Activity Log",
     items: [
-      { label: "Settings", icon: settingIcon, path: "/app/settings" },
-      // { label: 'Permissions', icon: reportIcon, path: '/app/permissions' },
+      { label: "Activity Log", icon: settingIcon, path: "/app/activity-logs" },
     ],
   },
 ];
 
-// ── Status options ──────────────────────────────────────────────────
 export const STATUS = {
   ACTIVE: "active",
   PENDING: "pending",

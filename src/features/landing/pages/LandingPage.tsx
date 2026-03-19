@@ -1,4 +1,5 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
 import { useLoader } from '../../../App'
 import showToast from '../../../utils/toast'
 import appLogo from '../../../assets/images/appLogo.png'
@@ -22,6 +23,17 @@ const STATS = [
 export default function LandingPage() {
   const navigate = useNavigate()
   const { withLoader } = useLoader()
+  const location = useLocation()
+  const initialized = useRef(false)
+
+  useEffect(() => {
+    if (initialized.current) return
+    const params = new URLSearchParams(location.search)
+    if (params.get('session') === 'expired') {
+      showToast.warn('Your session has expired. Please log in again.')
+    }
+    initialized.current = true
+  }, [location])
 
   const handleLogin = async () => {
     await withLoader(() => new Promise(r => setTimeout(r, 600)), 'Preparing your workspace…')

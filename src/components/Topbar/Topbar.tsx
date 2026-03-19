@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   capitalize,
-  logout,
   logoutUser,
   removeAllLocalStorageItems,
 } from "../../utils/helpers";
@@ -12,6 +11,7 @@ import showToast from "../../utils/toast";
 import { useLoader } from "../../App";
 import { getLocalStorageItem } from "../../utils/helpers";
 import { LOCAL_DATA_STORE } from "../../utils/constants";
+import { useProfile } from "../../features/profile/hooks/useProfile";
 function usePageTitle() {
   const { pathname } = useLocation();
   const segment = pathname.split("/").filter(Boolean)[1] || "dashboard";
@@ -25,7 +25,7 @@ export default function Topbar({ onToggleSidebar }) {
   const [searchVal, setSearchVal] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [user, setUser] = useState(null);
-
+const { profile } = useProfile();
   const handleSearch = (e) => {
     if (e.key === "Enter" && searchVal.trim()) {
       showToast.info(`Searching for "${searchVal.trim()}"…`);
@@ -38,19 +38,6 @@ export default function Topbar({ onToggleSidebar }) {
   const handleCalendar = () => showToast.info("Opening calendar view…");
   const handleMessages = () => showToast.info("You have 3 new messages.");
 
-  useEffect(() => {
-    try {
-      const storedData = getLocalStorageItem(LOCAL_DATA_STORE.USER_DATA);
-      if (storedData) {
-        const userData = JSON.parse(storedData);
-        setUser(userData);
-      } else {
-        console.log("userData is null/undefined in localStorage");
-      }
-    } catch (e) {
-      console.log("Failed to parse userData:", e);
-    }
-  }, []);
 
   const handleLogout = async () => {
     try {
@@ -120,7 +107,7 @@ export default function Topbar({ onToggleSidebar }) {
           onClick={() => setIsMenuOpen((prev) => !prev)}
           className="cursor-pointer hover:ring-2 hover:ring-brand-primary/30 rounded-full transition-all duration-200"
         >
-          <Avatar name={user?.role} size="sm" index={0} />
+          <Avatar name={profile?.name} src={profile?.avatar} size="sm" index={0} />
         </div>
 
         {/* Dropdown Menu */}
@@ -134,19 +121,28 @@ export default function Topbar({ onToggleSidebar }) {
             <div className="absolute right-0 top-[120%] w-48 bg-white border border-gray-100 shadow-[0_8px_30px_rgba(0,0,0,0.12)] rounded-2xl py-2 z-50 animate-[fadeUp_0.15s_ease_both]">
               <div className="px-4 py-2 border-b border-gray-50 mb-1">
                 <p className="text-[13px] font-semibold text-navy">
-                  {capitalize(user?.role)}
+                  {capitalize(profile?.name)}
                 </p>
-                <p className="text-[11px] text-gray-400">{user?.email}</p>
+                <p className="text-[11px] text-gray-400">{profile?.email}</p>
               </div>
 
               <button
                 onClick={() => {
                   setIsMenuOpen(false);
-                  showToast.info("Opening profile…");
+                  navigate("/app/profile");
                 }}
                 className="w-full text-left px-4 py-2 text-[13px] font-medium text-gray-700 hover:bg-brand-primary/5 hover:text-brand-primary transition-colors flex items-center gap-2"
               >
                 <span>🙎🏻‍♂️</span> Profile
+              </button>
+              <button
+                onClick={() => {
+                  setIsMenuOpen(false);
+                  navigate("/app/change-password");
+                }}
+                className="w-full text-left px-4 py-2 text-[13px] font-medium text-gray-700 hover:bg-brand-primary/5 hover:text-brand-primary transition-colors flex items-center gap-2"
+              >
+                <span>🔐</span> Change Password
               </button>
 
               <button

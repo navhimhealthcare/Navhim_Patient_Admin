@@ -4,7 +4,7 @@ import { cn } from '../../utils/helpers'
 /* ─────────────────────────────────────────────────────────────────────
    SPINNER ICON — tiny reusable spin ring, used inside buttons / inline
 ───────────────────────────────────────────────────────────────────── */
-export function SpinnerIcon({ size = 'md', color = 'current', className }) {
+export function SpinnerIcon({ size = 'md', color = 'current', className }: { size?: 'xs'|'sm'|'md'|'lg'|'xl'; color?: 'current'|'white'|'blue'|'gray'; className?: string }) {
   const sizes = {
     xs:  'w-3 h-3 border-[1.5px]',
     sm:  'w-4 h-4 border-2',
@@ -65,7 +65,7 @@ export function PageLoader({ text = 'Loading…' }) {
 /* ─────────────────────────────────────────────────────────────────────
    SECTION LOADER — centred spinner for card / table loading states
 ───────────────────────────────────────────────────────────────────── */
-export function SectionLoader({ text = 'Fetching data…', className }) {
+export function SectionLoader({ text = 'Fetching data…', className }: { text?: string; className?: string }) {
   return (
     <div className={cn('flex flex-col items-center justify-center gap-3 py-16 text-center', className)}>
       <SpinnerIcon size="lg" color="blue" />
@@ -77,7 +77,7 @@ export function SectionLoader({ text = 'Fetching data…', className }) {
 /* ─────────────────────────────────────────────────────────────────────
    SKELETON — grey shimmer placeholder for text / cards
 ───────────────────────────────────────────────────────────────────── */
-export function Skeleton({ className }) {
+export function Skeleton({ className }: { className?: string }) {
   return (
     <div
       className={cn(

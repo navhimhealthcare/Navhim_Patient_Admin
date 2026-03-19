@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import appLogo from "../../assets/images/appLogo.png";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { cn, getLocalStorageItem, capitalize } from "../../utils/helpers";
 import { NAV_ITEMS, LOCAL_DATA_STORE } from "../../utils/constants";
 import Badge from "../Badge/Badge";
 import Avatar from "../Avatar/Avatar";
+import { useProfile } from "../../features/profile/hooks/useProfile";
 
 /* ─── Tooltip shown in collapsed state ─────────────────────────────── */
 function Tooltip({ label }) {
@@ -26,15 +27,26 @@ function Tooltip({ label }) {
 }
 
 /* ─── Single nav item ───────────────────────────────────────────────── */
-function NavItem({ item, collapsed }) {
+function NavItem({ item, collapsed, isOpen, onToggleSub }) {
   const location = useLocation();
+  const hasSubItems = item.subItems && item.subItems.length > 0;
   const isActive =
     location.pathname === item.path ||
-    location.pathname.startsWith(item.path + "/");
+    location.pathname.startsWith(item.path + "/") ||
+    (hasSubItems &&
+      item.subItems.some((sub) => location.pathname === sub.path));
 
-  return (
+  const handleClick = (e) => {
+    if (hasSubItems) {
+      e.preventDefault();
+      onToggleSub();
+    }
+  };
+
+  const content = (
     <NavLink
-      to={item.path}
+      to={hasSubItems ? "#" : item.path}
+      onClick={handleClick}
       className={({ isActive: routerActive }) =>
         cn(
           "group relative flex items-center rounded-xl mx-2 my-0.5",
@@ -92,9 +104,23 @@ function NavItem({ item, collapsed }) {
             {item.label}
           </span>
 
+          {/* Chevron for subItems */}
+          {hasSubItems && !collapsed && (
+            <span
+              className={cn(
+                "text-[10px] transition-transform duration-200 text-white/30 group-hover:text-white/60",
+                isOpen ? "rotate-90" : "rotate-0",
+              )}
+            >
+              ▶
+            </span>
+          )}
+
           {/* Badge — hides when collapsed */}
           {item.badge && !collapsed && (
-            <Badge color={item.badgeColor || "blue"}>{item.badge}</Badge>
+            <Badge color={item.badgeColor || "blue"} className="">
+              {item.badge}
+            </Badge>
           )}
 
           {/* Tooltip — only shows in collapsed state */}
@@ -102,6 +128,32 @@ function NavItem({ item, collapsed }) {
         </>
       )}
     </NavLink>
+  );
+
+  return (
+    <div>
+      {content}
+      {hasSubItems && isOpen && !collapsed && (
+        <div className="flex flex-col gap-0.5 mt-0.5 ml-4 border-l border-white/5 pl-2 mb-1 animate-[fadeUp_0.15s_ease_both]">
+          {item.subItems.map((sub) => (
+            <NavLink
+              key={sub.path}
+              to={sub.path}
+              className={({ isActive: subActive }) =>
+                cn(
+                  "px-4 py-2 rounded-lg text-[12.5px] font-medium transition-all duration-200",
+                  subActive
+                    ? "bg-brand-primary/10 text-white"
+                    : "text-white/40 hover:text-white/70 hover:bg-white/5",
+                )
+              }
+            >
+              {sub.label}
+            </NavLink>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -123,23 +175,17 @@ function SectionLabel({ label, collapsed }) {
 
 /* ─── Main Sidebar ──────────────────────────────────────────────────── */
 export default function Sidebar({ collapsed, onToggle }) {
-  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
+  const [openGroups, setOpenGroups] = useState<string[]>([]);
   const isEffectivelyCollapsed = collapsed && !isHovered;
+  const { profile } = useProfile();
 
-  useEffect(() => {
-    try {
-      const storedData = getLocalStorageItem(LOCAL_DATA_STORE.USER_DATA);
-      if (storedData) {
-        const userData = JSON.parse(storedData);
-        setUser(userData);
-      } else {
-        console.log("userData is null/undefined in localStorage");
-      }
-    } catch (e) {
-      console.log("Failed to parse userData:", e);
-    }
-  }, []);
+  const toggleGroup = (label: string) => {
+    setOpenGroups((prev) =>
+      prev.includes(label) ? prev.filter((g) => g !== label) : [...prev, label],
+    );
+  };
 
   return (
     <aside
@@ -206,9 +252,11 @@ export default function Sidebar({ collapsed, onToggle }) {
             />
             {group.items.map((item) => (
               <NavItem
-                key={item.path}
+                key={item.label}
                 item={item}
                 collapsed={isEffectivelyCollapsed}
+                isOpen={openGroups.includes(item.label)}
+                onToggleSub={() => toggleGroup(item.label)}
               />
             ))}
           </div>
@@ -218,14 +266,16 @@ export default function Sidebar({ collapsed, onToggle }) {
       {/* ── Bottom user card ── */}
       <div className="border-t border-white/[0.07] p-2 flex-shrink-0">
         <div
+          onClick={() => navigate("/app/profile")}
           className={cn(
-            "flex items-center gap-2.5 px-2.5 py-2 rounded-xl cursor-pointer",
+            "flex items-center gap-2.5 px-2 py-2 rounded-xl cursor-pointer",
             "bg-white/[0.04] hover:bg-white/[0.08] transition-all duration-200",
             isEffectivelyCollapsed && "justify-center px-0",
           )}
         >
           <Avatar
-            name={capitalize(user?.role)}
+            name={capitalize(profile?.name)}
+            src={profile?.avatar}
             size="sm"
             index={0}
             className="flex-shrink-0"
@@ -235,10 +285,10 @@ export default function Sidebar({ collapsed, onToggle }) {
             <>
               <div className="flex-1 overflow-hidden">
                 <p className="text-xs font-semibold text-white whitespace-nowrap overflow-hidden text-ellipsis">
-                  {capitalize(user?.role)}
+                  {capitalize(profile?.name)}
                 </p>
                 <p className="text-[10.5px] text-white/40 mt-0.5">
-                  {user?.email}
+                  {profile?.email}
                 </p>
               </div>
               <span className="text-white/30 text-sm flex-shrink-0">›</span>

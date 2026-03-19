@@ -72,10 +72,10 @@ export default function DoctorCard({
               {d.name}
             </p>
             <p className="text-[11.5px] text-brand-primary font-semibold mt-0.5">
-              {d.specialization.name}
+              {d.specialization?.name || "N/A"}
             </p>
             <p className="text-[11px] text-gray-400 mt-0.5 truncate">
-              🏥 {d.hospital.name}
+              🏥 {d.hospital?.name || "N/A"}
             </p>
           </div>
 
@@ -101,7 +101,7 @@ export default function DoctorCard({
         </div>
 
         {/* Availability chips */}
-        {d.availability.length > 0 && (
+        {d.availability && d.availability.length > 0 && (
           <div className="flex flex-wrap gap-1 mb-4">
             {d.availability.slice(0, 4).map((a) => (
               <span

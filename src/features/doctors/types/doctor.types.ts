@@ -61,6 +61,7 @@ export interface DoctorFormValues {
   isFree:               boolean
   isActive:             boolean
   availability:         { day: string; slots: string[] }[]
+   rating?: number | string; 
 }
 
 export interface DoctorFilter {

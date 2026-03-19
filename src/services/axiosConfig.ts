@@ -69,6 +69,22 @@ axiosInstance.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    /* Do not trigger refresh/logout logic for login attempts */
+    if (originalRequest?.url?.includes("/auth/admin-login")) {
+      return Promise.reject(error);
+    }
+
+    /* ── Handle Session Expired (440) ── */
+    if (error.response?.status === 440) {
+      if (!isLoggingOut) {
+        isLoggingOut = true;
+        removeAllLocalStorageItems();
+        // We use window.location because we are outside of React routing context here
+        window.location.href = "/login?session=expired";
+      }
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -110,7 +126,7 @@ axiosInstance.interceptors.response.use(
         if (!isLoggingOut) {
           isLoggingOut = true;
           logoutUser()
-          window.location.href = "/";
+          window.location.href = "/login";
         }
 
         return Promise.reject(err);

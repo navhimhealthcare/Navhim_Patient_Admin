@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Category, Doctor, DoctorFormValues } from "../types/doctor.types";
 import { doctorService } from "../services/doctorService";
 import { buildDoctorPayload } from "../helpers/doctorHelper";
@@ -9,46 +9,54 @@ export const useDoctors = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const isFetching = useRef(false);
+  const isFetchingCategories = useRef(false);
 
   const fetchAll = useCallback(async () => {
+    if (isFetching.current) return;
+    isFetching.current = true;
     setLoading(true);
     try {
       const res = await doctorService.getAll();
       setDoctors(res.data.data);
-      // showToast.success(`${res.data.data.length} doctors loaded.`)
     } catch (err: any) {
       showToast.error(
         err?.response?.data?.message || "Failed to load doctors.",
       );
     } finally {
       setLoading(false);
+      isFetching.current = false;
     }
   }, []);
 
   const fetchCategoriesAll = useCallback(async () => {
+    if (isFetchingCategories.current) return;
+    isFetchingCategories.current = true;
     setLoading(true);
     try {
       const res = await doctorService.getCategoryAll();
       setCategories(res.data.data);
-      // showToast.success(`${res.data.data.length} doctors loaded.`)
     } catch (err: any) {
       showToast.error(
         err?.response?.data?.message || "Failed to load doctors.",
       );
     } finally {
       setLoading(false);
+      isFetchingCategories.current = false;
     }
   }, []);
 
   useEffect(() => {
-    (fetchAll(), fetchCategoriesAll());
+    fetchAll();
+    fetchCategoriesAll();
   }, [fetchAll, fetchCategoriesAll]);
 
   const addDoctor = async (form: DoctorFormValues): Promise<boolean> => {
     setActionLoading(true);
     try {
       const res = await doctorService.create(buildDoctorPayload(form));
-      setDoctors((p) => [res.data.data, ...p]);
+      fetchAll();
+      // setDoctors((p) => [res.data.data, ...p]);
       showToast.success(`Dr. ${form.name} added successfully!`);
       return true;
     } catch (err: any) {
@@ -66,7 +74,8 @@ export const useDoctors = () => {
     try {
       // Pass raw form — service decides FormData vs JSON based on profileImage
       const res = await doctorService.update(id, form);
-      setDoctors((p) => p.map((d) => (d._id === id ? res.data.data : d)));
+      fetchAll();
+      // setDoctors((p) => p.map((d) => (d._id === id ? res.data.data : d)));
       showToast.success(`Dr. ${form.name} updated successfully!`);
       return true;
     } catch (err: any) {
@@ -83,7 +92,8 @@ export const useDoctors = () => {
     setActionLoading(true);
     try {
       await doctorService.remove(doctor._id);
-      setDoctors((p) => p.filter((d) => d._id !== doctor._id));
+      fetchAll();
+      // setDoctors((p) => p.filter((d) => d._id !== doctor._id));
       showToast.warn(`${doctor.name} removed from roster.`);
       return true;
     } catch (err: any) {

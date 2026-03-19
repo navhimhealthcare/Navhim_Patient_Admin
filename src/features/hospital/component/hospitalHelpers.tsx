@@ -12,7 +12,7 @@ export const buildHospitalPayload = (form: HospitalFormValues) => ({
   address:  form.address.trim(),
   phone:    form.phone.trim(),
   email:    form.email.trim().toLowerCase(),
-  isActive: form.isActive,
+  isActive: !!form.isActive,
   location: {
     type:        'Point' as const,
     coordinates: [
@@ -29,7 +29,7 @@ export const formFromHospital = (h: Hospital): HospitalFormValues => ({
   email:    h.email,
   lat:      String(h.location.coordinates[1]),
   lng:      String(h.location.coordinates[0]),
-  isActive: h.isActive,
+  isActive: !!h.isActive,
 })
 
 export const validateHospitalForm = (

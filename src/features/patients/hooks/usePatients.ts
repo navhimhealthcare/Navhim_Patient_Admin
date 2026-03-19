@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Patient,
   PatientFormValues,
@@ -16,8 +16,11 @@ export const usePatients = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const isFetching = useRef(false);
 
   const fetchAll = useCallback(async () => {
+    if (isFetching.current) return;
+    isFetching.current = true;
     setLoading(true);
     try {
       const res = await patientService.getAll();
@@ -28,6 +31,7 @@ export const usePatients = () => {
       );
     } finally {
       setLoading(false);
+      isFetching.current = false;
     }
   }, []);
 

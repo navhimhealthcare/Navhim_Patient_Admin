@@ -43,6 +43,7 @@ export const doctorService = {
           : parseFloat(form.consultationFee) || 0,
         isFree: form.isFree,
         isActive: form.isActive,
+        rating: Number(form.rating) || 0,
         availability: form.availability,
       });
     }

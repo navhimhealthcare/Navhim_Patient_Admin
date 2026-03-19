@@ -30,6 +30,7 @@ export const EMPTY_FORM: DoctorFormValues = {
   isFree: false,
   isActive: true,
   availability: [],
+  rating: 0, 
 };
 
 export const formatFee = (fee: number, isFree: boolean) =>
@@ -56,6 +57,7 @@ export const buildDoctorPayload = (form: DoctorFormValues): FormData => {
 
   fd.append('name',            form.name.trim())
   fd.append('about',           form.about.trim())
+  fd.append('rating',           String(form.rating ?? 0))
   fd.append('specialization',  form.specializationId)
   fd.append('hospital',        form.hospitalId)
   fd.append('experienceYears', String(parseInt(form.experienceYears) || 0))
@@ -72,13 +74,14 @@ export const formFromDoctor = (d: Doctor): DoctorFormValues => ({
   existingProfileImage: d.profileImage ?? "", // keep current URL
   name: d.name,
   about: d.about,
-  specializationId: d.specialization._id,
-  hospitalId: d.hospital._id,
-  experienceYears: String(d.experienceYears),
-  consultationFee: String(d.consultationFee),
-  isFree: d.isFree,
-  isActive: d.isActive,
-  availability: d.availability.map((a) => ({ day: a.day, slots: a.slots })),
+  specializationId: d.specialization?._id || "",
+  hospitalId: d.hospital?._id || "",
+  experienceYears: String(d.experienceYears || ""),
+  consultationFee: String(d.consultationFee || ""),
+  isFree: !!d.isFree,
+  isActive: !!d.isActive,
+  rating: d.rating || 0,
+  availability: d.availability?.map((a) => ({ day: a.day, slots: a.slots })) || [],
 });
 
 export const validateDoctorForm = (
@@ -90,7 +93,7 @@ export const validateDoctorForm = (
     errors.specializationId = "Specialization is required";
   if (!form.hospitalId) errors.hospitalId = "Hospital is required";
   if (!form.experienceYears) errors.experienceYears = "Experience is required";
-  if (!form.consultationFee)
+  if (!form.isFree && !form.consultationFee)
     errors.consultationFee = "Consultation fee is required";
   return errors;
 };
@@ -103,17 +106,17 @@ export const filterDoctors = (doctors: Doctor[], f: DoctorFilter): Doctor[] =>
       f.search &&
       !(
         d.name.toLowerCase().includes(q) ||
-        d.specialization.name.toLowerCase().includes(q) ||
-        d.hospital.name.toLowerCase().includes(q)
+        d.specialization?.name.toLowerCase().includes(q) ||
+        d.hospital?.name.toLowerCase().includes(q)
       )
     )
       return false;
 
-    if (f.specialty && d.specialization._id !== f.specialty) return false;
+    if (f.specialty && d.specialization?._id !== f.specialty) return false;
 
-    if (f.hospital && d.hospital._id !== f.hospital) return false;
+    if (f.hospital && d.hospital?._id !== f.hospital) return false;
 
-    if (f.day && !d.availability.some((a) => a.day === f.day)) return false;
+    if (f.day && !d.availability?.some((a) => a.day === f.day)) return false;
 
     if (f.experience) {
       const [min, max] = f.experience.split("-").map(Number);
@@ -144,7 +147,7 @@ export const getDoctorSummary = (doctors: Doctor[]) => ({
   active: doctors.filter((d) => d.isActive).length,
   inactive: doctors.filter((d) => !d.isActive).length,
   avgRating: doctors.length
-    ? (doctors.reduce((s, d) => s + d.rating, 0) / doctors.length).toFixed(1)
+    ? (doctors.reduce((s, d) => s + (d.rating || 0), 0) / doctors.length).toFixed(1)
     : "0.0",
 });
 

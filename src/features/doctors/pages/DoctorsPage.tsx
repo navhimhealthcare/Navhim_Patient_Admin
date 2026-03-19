@@ -256,16 +256,16 @@ export default function DoctorPage() {
                           {d.name}
                         </p>
                         <p className="text-[10.5px] text-gray-300 mt-0.5 font-mono">
-                          {d._id.slice(-8)}
+                          {d._id?.slice(-8)}
                         </p>
                       </div>
                     </div>
                   </td>
                   <td className="px-4 py-3.5 text-[12.5px] text-gray-600 font-medium">
-                    {d.specialization.name}
+                    {d.specialization?.name || "N/A"}
                   </td>
                   <td className="px-4 py-3.5 text-[12.5px] text-gray-500">
-                    {d.hospital.name}
+                    {d.hospital?.name || "N/A"}
                   </td>
                   <td className="px-4 py-3.5 text-[12.5px] text-gray-600 font-semibold">
                     {d.experienceYears} yrs
@@ -279,7 +279,7 @@ export default function DoctorPage() {
                   </td>
                   <td className="px-4 py-3.5">
                     <div className="flex flex-wrap gap-1">
-                      {d.availability.slice(0, 3).map((a) => (
+                      {d.availability?.slice(0, 3).map((a) => (
                         <span
                           key={a._id}
                           className="px-1.5 py-0.5 bg-surface text-[10px] font-semibold text-gray-500 rounded capitalize"
@@ -287,7 +287,7 @@ export default function DoctorPage() {
                           {a.day.slice(0, 3)}
                         </span>
                       ))}
-                      {d.availability.length > 3 && (
+                      {d.availability && d.availability?.length > 3 && (
                         <span className="px-1.5 py-0.5 bg-surface text-[10px] font-semibold text-gray-400 rounded">
                           +{d.availability.length - 3}
                         </span>
