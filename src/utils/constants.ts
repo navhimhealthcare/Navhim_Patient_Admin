@@ -7,6 +7,7 @@ const dashboardIcon = "/src/assets/images/dashboard.png";
 const patientsIcon = "/src/assets/images/patient.png";
 const notificationIcon = "/src/assets/images/notification.png";
 const settingIcon = "/src/assets/images/setting.png";
+const activityLogIcon = "/src/assets/images/activityLog.png";
 const hospitalIcon = "/src/assets/images/hospital.png";
 const categoryIcon = "/src/assets/images/category.png";
 const communityPostIcon = "/src/assets/images/communityPost.png";
@@ -90,7 +91,12 @@ export const NAV_ITEMS = [
   {
     section: "Activity Log",
     items: [
-      { label: "Activity Log", icon: settingIcon, path: "/app/activity-logs" },
+      {
+        label: "Activity Log",
+        icon: activityLogIcon,
+        iconFilter: "brand",
+        path: "/app/activity-logs",
+      },
     ],
   },
 ];
@@ -104,6 +110,7 @@ export const STATUS = {
 
 // ── API base ────────────────────────────────────────────────────────
 export const API_BASE_URL = import.meta.env.VITE_API_URL;
+export const GCP_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 // ── Pagination ──────────────────────────────────────────────────────
 export const PAGE_SIZE = 10;
 

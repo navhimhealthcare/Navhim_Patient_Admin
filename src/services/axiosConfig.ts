@@ -125,7 +125,7 @@ axiosInstance.interceptors.response.use(
 
         if (!isLoggingOut) {
           isLoggingOut = true;
-          logoutUser()
+          logoutUser();
           window.location.href = "/login";
         }
 

@@ -53,6 +53,8 @@ export const ProfileProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (payload.avatar instanceof File) {
         fd.append("avatar", payload.avatar);
       }
+      console.log('payload',payload);
+      
 
       await updateProfileAPI(fd);
       await refreshProfile(true); // Force refresh after update

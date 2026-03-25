@@ -43,8 +43,8 @@ export const validateHospitalForm = (
   if (!form.address.trim())
     errors.address = 'Address is required'
 
-  if (form.phone && !/^\d{10}$/.test(form.phone))
-    errors.phone = 'Enter a valid 10-digit phone number'
+  if (form.phone && !/^\+?[0-9\- ]{10,20}$/.test(form.phone))
+    errors.phone = 'Enter a valid phone number'
 
   if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email))
     errors.email = 'Enter a valid email address'

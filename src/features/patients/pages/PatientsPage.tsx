@@ -674,6 +674,7 @@ import PatientFilters from "../components/patientFilters";
 import PatientModal from "../components/patientModal";
 import PatientDeleteModal from "../components/patientDeleteModal";
 import editIcon from "../../../assets/images/edit.png";
+import prescriptionIcon from "../../../assets/images/prescription.png";
 import deleteIcon from "../../../assets/images/delete.png";
 import { capitalize } from "../../../utils/helpers";
 import userIcon from "../../../assets/images/user.png";
@@ -1148,6 +1149,20 @@ export default function PatientPage() {
                         </svg>
                       </button>
                       <button
+                        onClick={() =>
+                          navigate(`/app/patients/${p._id}/prescriptions`)
+                        }
+                        // className="w-8 h-8 rounded-lg hover:bg-brand-lighter hover:text-brand-primary text-gray-400 flex items-center justify-center text-sm transition-all"
+                        title="View Prescription"
+                        className="w-8 h-8 rounded-lg hover:bg-blue-50 flex items-center justify-center transition-all group/rep"
+                      >
+                        <img
+                          src={prescriptionIcon}
+                          alt="prescription"
+                          className="w-3.5 h-3.5 opacity-50"
+                        />
+                      </button>
+                      <button
                         onClick={() => openEdit(p)}
                         className="w-8 h-8 rounded-lg hover:bg-brand-lighter flex items-center justify-center transition-all"
                       >
@@ -1325,6 +1340,7 @@ export default function PatientPage() {
                       </svg>
                       Reports
                     </button>
+
                     <button
                       onClick={() => openEdit(p)}
                       className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg bg-brand-lighter text-brand-primary text-[12px] font-semibold hover:bg-brand-soft transition-colors"

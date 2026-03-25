@@ -30,7 +30,7 @@ export const EMPTY_FORM: DoctorFormValues = {
   isFree: false,
   isActive: true,
   availability: [],
-  rating: 0, 
+  rating: 0,
 };
 
 export const formatFee = (fee: number, isFree: boolean) =>
@@ -44,30 +44,33 @@ export const formatDate = (iso: string) =>
   });
 
 export const buildDoctorPayload = (form: DoctorFormValues): FormData => {
-  const fd = new FormData()
+  const fd = new FormData();
 
   if (form.profileImage) {
     // New file selected — upload it
-    fd.append('profileImage', form.profileImage)
+    fd.append("profileImage", form.profileImage);
   } else if (form.existingProfileImage) {
     // No new file — send existing URL under same key "profileImage"
-    fd.append('profileImage', form.existingProfileImage)
+    fd.append("profileImage", form.existingProfileImage);
   }
   // If both empty — don't append profileImage at all (remove image)
 
-  fd.append('name',            form.name.trim())
-  fd.append('about',           form.about.trim())
-  fd.append('rating',           String(form.rating ?? 0))
-  fd.append('specialization',  form.specializationId)
-  fd.append('hospital',        form.hospitalId)
-  fd.append('experienceYears', String(parseInt(form.experienceYears) || 0))
-  fd.append('consultationFee', String(form.isFree ? 0 : parseFloat(form.consultationFee) || 0))
-  fd.append('isFree',          String(form.isFree))
-  fd.append('isActive',        String(form.isActive))
-  fd.append('availability',    JSON.stringify(form.availability))
+  fd.append("name", form.name.trim());
+  fd.append("about", form.about.trim());
+  fd.append("rating", String(form.rating ?? 0));
+  fd.append("specialization", form.specializationId);
+  fd.append("hospital", form.hospitalId);
+  fd.append("experienceYears", String(parseInt(form.experienceYears) || 0));
+  fd.append(
+    "consultationFee",
+    String(form.isFree ? 0 : parseFloat(form.consultationFee) || 0),
+  );
+  fd.append("isFree", String(form.isFree));
+  fd.append("isActive", String(form.isActive));
+  fd.append("availability", JSON.stringify(form.availability));
 
-  return fd
-}
+  return fd;
+};
 
 export const formFromDoctor = (d: Doctor): DoctorFormValues => ({
   profileImage: null, // new file — always starts empty
@@ -81,7 +84,8 @@ export const formFromDoctor = (d: Doctor): DoctorFormValues => ({
   isFree: !!d.isFree,
   isActive: !!d.isActive,
   rating: d.rating || 0,
-  availability: d.availability?.map((a) => ({ day: a.day, slots: a.slots })) || [],
+  availability:
+    d.availability?.map((a) => ({ day: a.day, slots: a.slots })) || [],
 });
 
 export const validateDoctorForm = (
@@ -147,7 +151,9 @@ export const getDoctorSummary = (doctors: Doctor[]) => ({
   active: doctors.filter((d) => d.isActive).length,
   inactive: doctors.filter((d) => !d.isActive).length,
   avgRating: doctors.length
-    ? (doctors.reduce((s, d) => s + (d.rating || 0), 0) / doctors.length).toFixed(1)
+    ? (
+        doctors.reduce((s, d) => s + (d.rating || 0), 0) / doctors.length
+      ).toFixed(1)
     : "0.0",
 });
 

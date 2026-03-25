@@ -12,6 +12,7 @@ import {
 import { SectionLoader } from "../../../components/Loader/Loader";
 import CreateReportModal from "../components/createReportModal";
 import axiosInstance from "../../../services/axiosConfig";
+import { patientService } from "../../patients/services/patientService";
 
 // ── Helpers ───────────────────────────────────────────────────────────────
 const fmtDate = (iso: string) =>
@@ -298,6 +299,8 @@ export default function PatientReportPage() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [doctors, setDoctors] = useState<{ _id: string; name: string }[]>([]);
+  const [patients, setPatients] = useState<{ _id: string; name: string }[]>([]);
+  const [fetchingPatients, setFetchingPatients] = useState(false);
 
   // Fetch doctors for the select dropdown
   useEffect(() => {
@@ -308,6 +311,20 @@ export default function PatientReportPage() {
         setDoctors(list.map((d: any) => ({ _id: d._id, name: d.name })));
       })
       .catch(() => {}); // silent — modal still works if empty
+  }, []);
+
+  // Fetch patients for the "Change Patient" dropdown
+  useEffect(() => {
+    setFetchingPatients(true);
+    patientService
+      .getAll()
+      .then((res) => {
+        const data = res.data as any;
+        const list = Array.isArray(data) ? data : data?.data || [];
+        setPatients(list.map((p: any) => ({ _id: p._id, name: p.name })));
+      })
+      .catch(() => {})
+      .finally(() => setFetchingPatients(false));
   }, []);
 
   const handleCreate = async (payload: CreateReportPayload) => {
@@ -378,7 +395,7 @@ export default function PatientReportPage() {
           </button>
           {/* <button onClick={() => navigate(`/app/patients/${patientId}/create-report`)} */}
           <button
-            onClick={() => {}}
+            onClick={() => navigate(`/app/patients/${patientId}/create-report`)}
             // <button onClick={() => setModalOpen(true)}
             className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-br from-brand-primary to-brand-gradient text-white text-[13.5px] font-bold shadow-lg shadow-brand-primary/30 hover:shadow-brand-primary/50 hover:-translate-y-0.5 transition-all duration-200"
           >
@@ -515,6 +532,65 @@ export default function PatientReportPage() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* ══ CHANGE PATIENT FILTER ═══════════════════════════════════════════ */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-5 py-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-brand-lighter flex items-center justify-center">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#4B69FF"
+                strokeWidth="2"
+              >
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-[14px] font-bold text-navy">Change Patient</p>
+              <p className="text-[11px] text-gray-400 font-medium">
+                Quickly switch between patients
+              </p>
+            </div>
+          </div>
+          <div className="relative flex-1 max-w-[300px] ml-4">
+            <select
+              value={patientId ?? ""}
+              disabled={fetchingPatients}
+              onChange={(e) =>
+                navigate(`/app/patients/${e.target.value}/reports`)
+              }
+              className="w-full h-11 pl-4 pr-10 rounded-xl border border-gray-100 bg-gray-50/50 text-[13px] font-semibold text-navy outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all appearance-none cursor-pointer disabled:opacity-50"
+            >
+              <option value="" disabled>
+                Select Patient
+              </option>
+              {patients.map((p) => (
+                <option key={p._id} value={p._id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path
+                  d="M2 4l4 4 4-4"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* ══ FILTER BAR ═══════════════════════════════════════════════════ */}

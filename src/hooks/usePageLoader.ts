@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef } from "react";
 
 /**
  * usePageLoader
@@ -19,37 +19,37 @@ import { useState, useCallback, useRef } from 'react'
  *   await withLoader(asyncFn, 'Deleting record…')
  */
 export default function usePageLoader(minMs = 400) {
-  const [isLoading, setIsLoading] = useState(false)
-  const [loadingText, setLoadingText] = useState('Loading…')
-  const startTimeRef = useRef<number | null>(null)
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingText, setLoadingText] = useState("Loading…");
+  const startTimeRef = useRef<number | null>(null);
 
-  const startLoading = useCallback((text = 'Loading…') => {
-    setLoadingText(text)
-    setIsLoading(true)
-    startTimeRef.current = Date.now()
-  }, [])
+  const startLoading = useCallback((text = "Loading…") => {
+    setLoadingText(text);
+    setIsLoading(true);
+    startTimeRef.current = Date.now();
+  }, []);
 
   const stopLoading = useCallback(() => {
-    const elapsed = Date.now() - (startTimeRef.current || 0)
-    const remaining = Math.max(0, minMs - elapsed)
-    setTimeout(() => setIsLoading(false), remaining)
-  }, [minMs])
+    const elapsed = Date.now() - (startTimeRef.current || 0);
+    const remaining = Math.max(0, minMs - elapsed);
+    setTimeout(() => setIsLoading(false), remaining);
+  }, [minMs]);
 
   /**
    * Wraps an async function with start/stop loading automatically.
    * Returns the function's return value.
    */
   const withLoader = useCallback(
-    async (asyncFn, text = 'Loading…') => {
-      startLoading(text)
+    async (asyncFn, text = "Loading…") => {
+      startLoading(text);
       try {
-        return await asyncFn()
+        return await asyncFn();
       } finally {
-        stopLoading()
+        stopLoading();
       }
     },
     [startLoading, stopLoading],
-  )
+  );
 
-  return { isLoading, loadingText, startLoading, stopLoading, withLoader }
+  return { isLoading, loadingText, startLoading, stopLoading, withLoader };
 }

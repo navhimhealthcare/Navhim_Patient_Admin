@@ -28,6 +28,8 @@ import ActivityLogPage from "../features/activityLog/pages/ActivityLogPage";
 import { ProfileProvider } from "../components/Providers/ProfileProvider";
 import PatientReportPage from "../features/reports/pages/PatientReportPage";
 import NavhimLabReportGenerator from "../features/reports/pages/NavhimLabReportGenerator";
+import PrescriptionListPage from "../features/prescription/pages/PrescriptionListPage";
+import CreatePrescriptionPage from "../features/prescription/pages/CreatePrescriptionPage";
 
 export default function AppRoutes({ sidebarCollapsed, toggleSidebar }: any) {
   return (
@@ -74,6 +76,15 @@ export default function AppRoutes({ sidebarCollapsed, toggleSidebar }: any) {
         <Route path="profile" element={<ProfilePage />} />
         <Route path="change-password" element={<ChangePasswordPage />} />
         <Route path="activity-logs" element={<ActivityLogPage />} />
+        <Route
+          path="/app/patients/:patientId/prescriptions"
+          element={<PrescriptionListPage />}
+        />
+        <Route
+          path="/app/patients/:patientId/prescriptions/create"
+          element={<CreatePrescriptionPage />}
+        />
+
         {/* Info Pages */}
         <Route path="privacy" element={<PrivacyPolicyPage />} />
         <Route path="support" element={<SupportPage />} />
