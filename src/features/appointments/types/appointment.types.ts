@@ -15,10 +15,11 @@ export interface AppointmentHospital {
 }
 
 export type AppointmentStatus =
-  | "booked"
+  | "upcoming"
   | "completed"
   | "cancelled"
-  | "rescheduled";
+  | "rescheduled"
+  | "missed";
 export type AppointmentMode = "Online" | "In_Clinic";
 export type PaymentStatus = "paid" | "unpaid" | "refunded";
 export interface AppointmentPatient {

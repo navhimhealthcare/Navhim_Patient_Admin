@@ -58,7 +58,7 @@ export default function AppRoutes({ sidebarCollapsed, toggleSidebar }: any) {
         }
       >
         <Route index element={<ComingSoon />} />
-        <Route path="dashboard" element={<ComingSoon />} />
+        <Route path="dashboard" element={<DashboardPage />} />
         <Route path="appointments" element={<AppointmentsPage />} />
         <Route path="patients" element={<PatientsPage />} />
         <Route
@@ -94,7 +94,6 @@ export default function AppRoutes({ sidebarCollapsed, toggleSidebar }: any) {
 
         {/* Unimplemented Features */}
         <Route path="pharmacy" element={<ComingSoon />} />
-        <Route path="reports" element={<ComingSoon />} />
         <Route path="notifications" element={<ComingSoon />} />
         <Route path="settings" element={<ComingSoon />} />
       </Route>

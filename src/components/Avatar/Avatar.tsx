@@ -21,6 +21,15 @@ const shapes = {
   square: 'rounded-xl',
 }
 
+interface AvatarProps {
+  name?: string;
+  src?: string;
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  shape?: 'circle' | 'square';
+  index?: number;
+  className?: string;
+}
+
 export default function Avatar({
   name    = '',
   src,
@@ -28,7 +37,7 @@ export default function Avatar({
   shape   = 'circle',
   index   = 0,
   className,
-}) {
+}: AvatarProps) {
   const gradient = gradients[index % gradients.length]
 
   if (src) {

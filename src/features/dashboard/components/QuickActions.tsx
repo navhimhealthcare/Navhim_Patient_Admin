@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { cn } from '../../../utils/helpers'
 import Card, { CardHeader } from '../../../components/Card/Card'
 import { SpinnerIcon } from '../../../components/Loader/Loader'
@@ -7,12 +8,13 @@ import { QUICK_ACTIONS } from '../dashboardAPI'
 
 export default function QuickActions() {
   const [loadingIdx, setLoadingIdx] = useState(null)
+  const navigate = useNavigate()
 
   const handleAction = async (action, idx) => {
     setLoadingIdx(idx)
-    await new Promise(r => setTimeout(r, 900))
+    await new Promise(r => setTimeout(r, 600)) // Shorter delay for better UX
     setLoadingIdx(null)
-    showToast.success(`${action.label} — action triggered successfully!`)
+    navigate(action.path)
   }
 
   return (

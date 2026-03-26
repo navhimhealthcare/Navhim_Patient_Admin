@@ -14,7 +14,17 @@ const cornerBg = {
   red:    'bg-danger',
 }
 
-export default function StatCard({ label, value, icon, color = 'blue', change, up, note }) {
+interface StatCardProps {
+  label: string;
+  value: string | number;
+  icon: string | React.ReactNode;
+  color?: 'blue' | 'green' | 'yellow' | 'red';
+  change?: string;
+  up?: boolean;
+  note?: string;
+}
+
+export default function StatCard({ label, value, icon, color = 'blue', change, up, note }: StatCardProps) {
   return (
     <div className="relative bg-white rounded-2xl p-5 border border-brand-primary/[0.08] overflow-hidden cursor-pointer transition-all duration-200 hover:shadow-hover hover:-translate-y-0.5">
       {/* Decorative corner */}
@@ -39,10 +49,10 @@ export default function StatCard({ label, value, icon, color = 'blue', change, u
       <p className="text-[12.5px] text-gray-400 font-medium mb-3">{label}</p>
 
       {/* Change */}
-      <p className={cn('text-xs font-semibold flex items-center gap-1', up ? 'text-success' : 'text-danger')}>
+      {/* <p className={cn('text-xs font-semibold flex items-center gap-1', up ? 'text-success' : 'text-danger')}>
         {change}
         <span className="text-gray-300 font-normal">{note}</span>
-      </p>
+      </p> */}
     </div>
   )
 }

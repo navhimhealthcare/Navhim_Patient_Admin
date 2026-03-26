@@ -1,6 +1,13 @@
 import { cn } from '../../utils/helpers'
 
-export default function Card({ children, className, hover = false, onClick }) {
+interface CardProps {
+  children: React.ReactNode;
+  className?: string;
+  hover?: boolean;
+  onClick?: () => void;
+}
+
+export default function Card({ children, className, hover = false, onClick }: CardProps) {
   return (
     <div
       onClick={onClick}
@@ -15,7 +22,14 @@ export default function Card({ children, className, hover = false, onClick }) {
   )
 }
 
-export function CardHeader({ title, subtitle, action, className }) {
+interface CardHeaderProps {
+  title?: string;
+  subtitle?: string;
+  action?: React.ReactNode;
+  className?: string;
+}
+
+export function CardHeader({ title, subtitle, action, className }: CardHeaderProps) {
   return (
     <div className={cn('flex items-center justify-between px-5 pt-5', className)}>
       <div>

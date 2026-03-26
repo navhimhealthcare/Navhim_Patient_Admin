@@ -84,10 +84,10 @@ export const NAV_ITEMS = [
       },
     ],
   },
-  {
-    section: "System",
-    items: [{ label: "Settings", icon: settingIcon, path: "/app/settings" }],
-  },
+  // {
+  //   section: "System",
+  //   items: [{ label: "Settings", icon: settingIcon, path: "/app/settings" }],
+  // },
   {
     section: "Activity Log",
     items: [

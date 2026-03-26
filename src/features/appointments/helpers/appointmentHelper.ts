@@ -15,12 +15,19 @@ export const STATUS_CONFIG: Record<
     border: string;
   }
 > = {
-  booked: {
-    label: "Booked",
+  upcoming: {
+    label: "Upcoming",
     bg: "bg-blue-50",
     text: "text-blue-600",
     dot: "bg-blue-500",
     border: "border-blue-200",
+  },
+  missed: {
+    label: "Missed",
+    bg: "bg-red-50",
+    text: "text-red-700",
+    dot: "bg-red-500",
+    border: "border-red-200",
   },
   completed: {
     label: "Completed",
@@ -72,12 +79,6 @@ export const MODE_LABEL: Record<
     icon: "💻",
     bg: "bg-blue-50",
     text: "text-blue-600",
-  },
-  Offline: {
-    label: "Offline",
-    icon: "🏥",
-    bg: "bg-gray-50",
-    text: "text-gray-600",
   },
   In_Clinic: {
     label: "In Clinic",
@@ -161,10 +162,11 @@ export const getAppSummary = (list: Appointment[]) => {
   const safeList = list.filter((a) => !!a);
   return {
     total: safeList.length,
-    booked: safeList.filter((a) => a.status === "booked").length,
+    upcoming: safeList.filter((a) => a.status === "upcoming").length,
     completed: safeList.filter((a) => a.status === "completed").length,
     cancelled: safeList.filter((a) => a.status === "cancelled").length,
     rescheduled: safeList.filter((a) => a.status === "rescheduled").length,
+    missed: safeList.filter((a) => a.status === "missed").length,
     today: safeList.filter(
       (a) => a.appointmentDate && isToday(a.appointmentDate),
     ).length,

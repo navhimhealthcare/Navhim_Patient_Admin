@@ -98,7 +98,7 @@ export function StatCardSkeleton() {
       <Skeleton className="w-11 h-11 rounded-xl mb-3" />
       <Skeleton className="w-20 h-7 rounded mb-2" />
       <Skeleton className="w-32 h-4 rounded mb-3" />
-      <Skeleton className="w-24 h-3 rounded" />
+      {/* <Skeleton className="w-24 h-3 rounded" /> */}
     </div>
   )
 }

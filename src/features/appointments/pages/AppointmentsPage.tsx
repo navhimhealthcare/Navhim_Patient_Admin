@@ -33,7 +33,8 @@ const STATUS_TABS: {
   icon: string;
 }[] = [
   { key: "all", label: "All", icon: "◈" },
-  { key: "booked", label: "Booked", icon: "◷" },
+  { key: "upcoming", label: "Upcoming", icon: "◷" },
+  { key: "missed", label: "Missed", icon: "❗" },
   { key: "completed", label: "Completed", icon: "◉" },
   { key: "cancelled", label: "Cancelled", icon: "✕" },
 ];
@@ -47,11 +48,18 @@ const STAT_META = [
     light: "#EEF1FF",
   },
   {
-    key: "booked",
-    field: "booked" as const,
-    label: "Booked",
+    key: "upcoming",
+    field: "upcoming" as const,
+    label: "Upcoming",
     color: "#2563EB",
     light: "#EFF6FF",
+  },
+  {
+    key: "missed",
+    field: "missed" as const,
+    label: "Missed",
+    color: "#DC2626",
+    light: "#FEF2F2",
   },
   {
     key: "completed",
@@ -304,7 +312,6 @@ export default function AppointmentsPage() {
                   ["all", "Mode"],
                   ["Online", "Online"],
                   ["In_Clinic", "In Clinic"],
-                  ["Offline", "Offline"],
                 ],
               },
               {
@@ -500,7 +507,7 @@ export default function AppointmentsPage() {
               const today = isToday(appt.appointmentDate);
               const isExp = expandedId === appt._id;
               const canAct =
-                appt.status === "booked" || appt.status === "rescheduled";
+                appt.status === "upcoming" || appt.status === "rescheduled";
 
               // patient is now an object
               const patient = appt.patient;
@@ -640,7 +647,7 @@ export default function AppointmentsPage() {
                           </button>
                         </>
                       )}
-                      {appt.status === "booked" && (
+                      {appt.status === "upcoming" && (
                         <button
                           onClick={() => markCompleted(appt._id)}
                           title="Mark done"

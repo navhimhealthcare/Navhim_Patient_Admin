@@ -15,6 +15,18 @@ const sizes = {
   lg: 'px-6 py-3 text-base rounded-xl',
 }
 
+interface ButtonProps {
+  children: React.ReactNode;
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline';
+  size?: 'sm' | 'md' | 'lg';
+  disabled?: boolean;
+  loading?: boolean;
+  icon?: React.ReactNode;
+  onClick?: () => void;
+  className?: string;
+  type?: 'button' | 'submit' | 'reset';
+}
+
 export default function Button({
   children,
   variant  = 'primary',
@@ -26,7 +38,7 @@ export default function Button({
   className,
   type = 'button',
   ...props
-}) {
+}: ButtonProps) {
   const spinnerColor = variant === 'primary' ? 'white' : 'blue'
 
   return (

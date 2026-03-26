@@ -15,7 +15,12 @@ const dots = {
   completed: 'bg-brand-primary',
 }
 
-export default function StatusBadge({ status, className }) {
+interface StatusBadgeProps {
+  status: string;
+  className?: string;
+}
+
+export default function StatusBadge({ status, className }: StatusBadgeProps) {
   const s = status?.toLowerCase() || 'pending'
   return (
     <span

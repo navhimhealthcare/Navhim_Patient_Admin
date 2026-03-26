@@ -38,7 +38,7 @@ export const useAppointments = () => {
       const { patientId, ...rest } = form;
       const res = await appointmentService.create(patientId, rest);
       await fetchAll();
-      showToast.success("Appointment booked!");
+      showToast.success("Appointment scheduled!");
       return true;
     } catch (err: any) {
       showToast.error(
