@@ -1,10 +1,11 @@
-import axiosInstance from "../../../services/axiosConfig";
 import {
-  PostListResponse,
-  PostSingleResponse,
   CommunityPostCreateForm,
   CommunityPostParams,
+  PostListResponse,
+  PostSingleResponse,
 } from "../types/community.types";
+
+import axiosInstance from "../../../services/axiosConfig";
 
 export const communityService = {
   // GET community/feed/filter  — server-side filter + pagination
@@ -25,5 +26,5 @@ export const communityService = {
     });
   },
 
-  remove: (id: string) => axiosInstance.delete(`/community/post/${id}`),
+  remove: (id: string) => axiosInstance.delete(`/community/posts/${id}`),
 };

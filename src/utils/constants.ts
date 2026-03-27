@@ -118,3 +118,34 @@ export const LOCAL_DATA_STORE = {
   JWT_TOKEN: "jwt_token",
   USER_DATA: "user_data",
 };
+
+export const QUICK_ACTIONS = [
+  {
+    icon: "📅",
+    label: "New Appointment",
+    bg: "bg-brand-lighter",
+    path: "/app/appointments",
+  },
+  { icon: "👤", label: "Patient", bg: "bg-success-bg", path: "/app/patients" },
+  { icon: "🧾", label: "Doctor", bg: "bg-warning-bg", path: "/app/doctors" },
+  { icon: "🏥", label: "Hospital", bg: "bg-danger-bg", path: "/app/hospital" },
+  {
+    icon: "💊",
+    label: "Prescribe",
+    bg: "bg-brand-lighter",
+    path: "/app/patients",
+  },
+  {
+    icon: "👥",
+    label: "Community",
+    bg: "bg-success-bg",
+    path: "/app/community",
+  },
+  {
+    icon: "📊",
+    label: "View Report",
+    bg: "bg-warning-bg",
+    path: "/app/patients",
+  },
+  { icon: "🏷", label: "Category", bg: "bg-surface", path: "/app/categories" },
+];

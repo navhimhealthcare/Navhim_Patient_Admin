@@ -1,8 +1,12 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
 import {
-  CommunityPost, CommunityPostCreateForm,
-  CommunityPostParams, CommunityPostFilter, PostSort,
+  CommunityPost,
+  CommunityPostCreateForm,
+  CommunityPostFilter,
+  CommunityPostParams,
+  PostSort,
 } from '../types/community.types'
+import { useCallback, useEffect, useRef, useState } from 'react'
+
 import { communityService } from '../services/communityService'
 import showToast            from '../../../utils/toast'
 

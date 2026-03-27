@@ -1,10 +1,11 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { cn } from '../../../utils/helpers'
 import Card, { CardHeader } from '../../../components/Card/Card'
+
+import { QUICK_ACTIONS } from '../../../utils/constants'
 import { SpinnerIcon } from '../../../components/Loader/Loader'
+import { cn } from '../../../utils/helpers'
 import showToast from '../../../utils/toast'
-import { QUICK_ACTIONS } from '../dashboardAPI'
+import { useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 
 export default function QuickActions() {
   const [loadingIdx, setLoadingIdx] = useState(null)

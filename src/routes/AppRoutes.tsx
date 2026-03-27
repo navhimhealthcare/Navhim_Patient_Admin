@@ -1,35 +1,35 @@
 import { Route, Routes } from "react-router-dom";
 
+import AboutUsPage from "../features/info/pages/AboutUsPage";
+import ActivityLogPage from "../features/activityLog/pages/ActivityLogPage";
 import AppointmentsPage from "../features/appointments/pages/appointmentsPage";
 import AuthGuard from "../components/Guards/AuthGuard";
 import CategoryPage from "../features/categories/pages/categoryPage";
+import ChangePasswordPage from "../features/auth/pages/ChangePasswordPage";
+import ComingSoon from "../components/ComingSoon/ComingSoon";
 import CommunityPage from "../features/community/pages/communityPage";
+import CreatePrescriptionPage from "../features/prescription/pages/CreatePrescriptionPage";
 import DashboardPage from "../features/dashboard/pages/DashboardPage";
 import DoctorsPage from "../features/doctors/pages/DoctorsPage";
+import ForgotPasswordPage from "../features/auth/pages/ForgotPasswordPage";
 import GuestGuard from "../components/Guards/GuestGuard";
 import HospitalPage from "../features/hospital/page/hospitalPage";
 import LandingPage from "../features/landing/pages/LandingPage";
 import LoginPage from "../features/auth/pages/LoginPage";
 import MainLayout from "../components/Layout/MainLayout";
+import NavhimLabReportGenerator from "../features/reports/pages/NavhimLabReportGenerator";
+import { Navigate } from "react-router-dom";
+import PatientReportPage from "../features/reports/pages/PatientReportPage";
 import PatientsPage from "../features/patients/pages/PatientsPage";
-import RegisterPage from "../features/auth/pages/RegisterPage";
-import AboutUsPage from "../features/info/pages/AboutUsPage";
-import WhyNavhim from "../features/info/pages/WhyNavhim";
+import PrescriptionListPage from "../features/prescription/pages/PrescriptionListPage";
 import PrivacyPolicyPage from "../features/info/pages/PrivacyPolicyPage";
+import ProfilePage from "../features/profile/pages/ProfilePage";
+import { ProfileProvider } from "../components/Providers/ProfileProvider";
+import RegisterPage from "../features/auth/pages/RegisterPage";
+import ResetPasswordPage from "../features/auth/pages/ResetPasswordPage";
 import SupportPage from "../features/info/pages/SupportPage";
 import TermsAndConditionsPage from "../features/info/pages/TermsAndConditionsPage";
-import ProfilePage from "../features/profile/pages/ProfilePage";
-import ForgotPasswordPage from "../features/auth/pages/ForgotPasswordPage";
-import ResetPasswordPage from "../features/auth/pages/ResetPasswordPage";
-import ComingSoon from "../components/ComingSoon/ComingSoon";
-import { Navigate } from "react-router-dom";
-import ChangePasswordPage from "../features/auth/pages/ChangePasswordPage";
-import ActivityLogPage from "../features/activityLog/pages/ActivityLogPage";
-import { ProfileProvider } from "../components/Providers/ProfileProvider";
-import PatientReportPage from "../features/reports/pages/PatientReportPage";
-import NavhimLabReportGenerator from "../features/reports/pages/NavhimLabReportGenerator";
-import PrescriptionListPage from "../features/prescription/pages/PrescriptionListPage";
-import CreatePrescriptionPage from "../features/prescription/pages/CreatePrescriptionPage";
+import WhyNavhim from "../features/info/pages/WhyNavhim";
 
 export default function AppRoutes({ sidebarCollapsed, toggleSidebar }: any) {
   return (
