@@ -17,7 +17,7 @@ export const useCategories = () => {
       const res = await categoryService.getAll()
       setCategories(res.data.data)
     } catch (err: any) {
-      showToast.error(err?.response?.data?.message || 'Failed to load categories.')
+      showToast.error(err?.response?.data?.message)
     } finally { 
       setLoading(false)
       isFetching.current = false
@@ -111,13 +111,23 @@ export const useCategories = () => {
   const editSubCategory = async (id: string, form: SubCategoryFormValues): Promise<boolean> => {
     setActionLoading(true)
     try {
-      const res = await categoryService.updateSubCategory(id, buildSubPayload(form))
-      setCategories(p => p.map(c =>
-        c._id === form.categoryId
-          ? { ...c, subCategories: c.subCategories.map(s => s._id === id ? res.data.data : s) }
-          : c
-      ))
-      showToast.success(`Sub-category updated!`)
+      const hasNewIcon = !!form.icon
+      const payload = hasNewIcon 
+        ? buildSubPayload(form) 
+        : { 
+            name:     form.name.trim(), 
+            category: form.categoryId, 
+            isActive: form.isActive 
+          }
+      
+      const res = await categoryService.updateSubCategory(id, payload)
+      fetchAll()
+      // setCategories(p => p.map(c =>
+      //   c._id === form.categoryId
+      //     ? { ...c, subCategories: c.subCategories.map(s => s._id === id ? res.data.data : s) }
+      //     : c
+      // ))
+      showToast.success(res.data?.message || 'Sub-category updated!')
       return true
     } catch (err: any) {
       showToast.error(err?.response?.data?.message || 'Failed to update sub-category.')

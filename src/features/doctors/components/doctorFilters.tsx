@@ -96,7 +96,7 @@ export default function DoctorFilters({
           className={selectCls}
         >
           <option value="">All Hospitals</option>
-          {hospitals.map((h) => (
+          {hospitals?.map((h) => (
             <option key={h._id} value={h._id}>
               {h.name}
             </option>

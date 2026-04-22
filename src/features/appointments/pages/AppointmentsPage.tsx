@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useAppointments } from "../hooks/useAppointments";
 import {
   Appointment,
@@ -8,7 +8,6 @@ import {
   AppointmentRescheduleForm,
 } from "../types/appointment.types";
 import {
-  filterAppointments,
   getAppSummary,
   formatDate,
   STATUS_CONFIG,
@@ -82,6 +81,8 @@ export default function AppointmentsPage() {
     appointments,
     loading,
     actionLoading,
+    pagination,
+    fetchAll,
     bookAppointment,
     rescheduleAppointment,
     cancelAppointment,
@@ -103,31 +104,40 @@ export default function AppointmentsPage() {
   );
   const [cancelAppt, setCancelAppt] = useState<Appointment | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
 
-  const filtered = useMemo(
-    () => filterAppointments(appointments, filter),
-    [appointments, filter],
-  );
   const summary = useMemo(() => getAppSummary(appointments), [appointments]);
+
   const hasFilters =
     filter.search ||
     filter.mode !== "all" ||
     filter.payment !== "all" ||
     filter.startDate ||
     filter.endDate;
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const paginated = useMemo(
-    () => filtered.slice((page - 1) * pageSize, page * pageSize),
-    [filtered, page, pageSize],
-  );
 
   const updateFilter = (
     updater: (p: AppointmentFilter) => AppointmentFilter,
   ) => {
     setFilter(updater);
-    setPage(1);
+  };
+
+  // Debounced server-side fetch
+  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    searchTimeout.current = setTimeout(() => {
+      fetchAll(1, pagination.limit, filter);
+    }, 400);
+    return () => {
+      if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    };
+  }, [filter, pagination.limit, fetchAll]);
+
+  const handlePageChange = (newPage: number) => {
+    fetchAll(newPage, pagination.limit, filter);
+  };
+
+  const handlePageSizeChange = (newSize: number) => {
+    fetchAll(1, newSize, filter);
   };
 
   const handleBook = (f: AppointmentCreateForm) => bookAppointment(f);
@@ -156,7 +166,7 @@ export default function AppointmentsPage() {
             )}
           </div>
           <p className="text-[13px] text-gray-400 font-medium mt-1">
-            {summary.total} appointments · {summary.unpaid} pending payment
+            {pagination.total} appointments · {summary.unpaid} pending payment
           </p>
         </div>
         <button
@@ -180,7 +190,7 @@ export default function AppointmentsPage() {
         {STAT_META.map((s) => {
           const val =
             s.field === "total"
-              ? summary.total
+              ? pagination.total
               : (summary[s.field as keyof typeof summary] as number);
           const active = filter.status === (s.key === "total" ? "all" : s.key);
           return (
@@ -394,7 +404,6 @@ export default function AppointmentsPage() {
             <button
               onClick={() => {
                 setFilter(EMPTY_FILTER);
-                setPage(1);
               }}
               className="h-9 px-3 rounded-xl text-[12px] font-semibold text-gray-400 hover:text-danger hover:bg-red-50 border border-transparent hover:border-red-100 transition-all flex items-center gap-1.5 whitespace-nowrap"
             >
@@ -404,7 +413,7 @@ export default function AppointmentsPage() {
 
           <div className="ml-auto pl-3 border-l border-gray-100">
             <p className="text-[12px] text-gray-400 font-medium whitespace-nowrap">
-              <span className="font-bold text-navy">{filtered.length}</span>{" "}
+              <span className="font-bold text-navy">{pagination.total}</span>{" "}
               results
             </p>
           </div>
@@ -416,7 +425,7 @@ export default function AppointmentsPage() {
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm">
           <SectionLoader text="Loading appointments…" />
         </div>
-      ) : filtered.length === 0 ? (
+      ) : appointments.length === 0 ? (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center py-24 gap-4">
           <div className="w-20 h-20 rounded-3xl bg-gray-50 flex items-center justify-center">
             <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
@@ -485,7 +494,7 @@ export default function AppointmentsPage() {
 
           {/* Rows */}
           <div className="flex flex-col gap-2">
-            {paginated.map((appt, idx) => {
+            {appointments.map((appt, idx) => {
               const sc = STATUS_CONFIG[appt.status] ?? {
                 label: appt.status,
                 bg: "bg-gray-100",
@@ -785,24 +794,26 @@ export default function AppointmentsPage() {
               <p className="text-[12.5px] text-gray-400">
                 Showing{" "}
                 <span className="font-bold text-navy">
-                  {(page - 1) * pageSize + 1}
+                  {(pagination.page - 1) * pagination.limit + 1}
                 </span>
                 –
                 <span className="font-bold text-navy">
-                  {Math.min(page * pageSize, filtered.length)}
+                  {Math.min(
+                    pagination.page * pagination.limit,
+                    pagination.total,
+                  )}
                 </span>{" "}
                 of{" "}
-                <span className="font-bold text-navy">{filtered.length}</span>
+                <span className="font-bold text-navy">{pagination.total}</span>
               </p>
               <div className="h-4 w-px bg-gray-200" />
               <div className="flex items-center gap-2">
                 <span className="text-[12px] text-gray-400">Rows</span>
                 <div className="relative">
                   <select
-                    value={pageSize}
+                    value={pagination.limit}
                     onChange={(e) => {
-                      setPageSize(Number(e.target.value));
-                      setPage(1);
+                      handlePageSizeChange(Number(e.target.value));
                     }}
                     className="h-7 pl-2 pr-6 bg-gray-50 rounded-lg text-[12px] font-bold text-navy outline-none border border-gray-200 appearance-none cursor-pointer"
                   >
@@ -833,11 +844,15 @@ export default function AppointmentsPage() {
 
             <div className="flex items-center gap-1">
               {[
-                { label: "«", action: () => setPage(1), disabled: page === 1 },
+                {
+                  label: "«",
+                  action: () => handlePageChange(1),
+                  disabled: pagination.page === 1,
+                },
                 {
                   label: "‹",
-                  action: () => setPage((p) => p - 1),
-                  disabled: page === 1,
+                  action: () => handlePageChange(pagination.page - 1),
+                  disabled: pagination.page === 1,
                 },
               ].map((btn) => (
                 <button
@@ -850,41 +865,48 @@ export default function AppointmentsPage() {
                 </button>
               ))}
 
-              {(() => {
-                const delta = 2;
-                const start = Math.max(
-                  1,
-                  Math.min(page - delta, totalPages - delta * 2),
-                );
-                const end = Math.min(
-                  totalPages,
-                  Math.max(page + delta, delta * 2 + 1),
-                );
-                return Array.from(
-                  { length: end - start + 1 },
-                  (_, i) => start + i,
-                ).map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => setPage(p)}
-                    className={`w-8 h-8 rounded-lg text-[12.5px] font-bold transition-all
-                      ${p === page ? "bg-brand-primary text-white shadow-sm shadow-brand-primary/30" : "text-gray-500 hover:bg-brand-lighter hover:text-brand-primary"}`}
-                  >
-                    {p}
-                  </button>
-                ));
-              })()}
+              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+                .filter(
+                  (p) =>
+                    p === 1 ||
+                    p === pagination.totalPages ||
+                    Math.abs(p - (pagination.page || 1)) <= 1,
+                )
+                .reduce<(number | "…")[]>((acc, p, idx, arr) => {
+                  if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("…");
+                  acc.push(p);
+                  return acc;
+                }, [])
+                .map((p, idx) =>
+                  p === "…" ? (
+                    <span
+                      key={`ellipsis-${idx}`}
+                      className="w-8 h-8 flex items-center justify-center text-[12px] text-gray-300"
+                    >
+                      …
+                    </span>
+                  ) : (
+                    <button
+                      key={p}
+                      onClick={() => handlePageChange(p as number)}
+                      className={`w-8 h-8 rounded-lg text-[12.5px] font-bold transition-all
+                      ${p === pagination.page ? "bg-brand-primary text-white shadow-sm shadow-brand-primary/30" : "text-gray-500 hover:bg-brand-lighter hover:text-brand-primary"}`}
+                    >
+                      {p}
+                    </button>
+                  ),
+                )}
 
               {[
                 {
                   label: "›",
-                  action: () => setPage((p) => p + 1),
-                  disabled: page === totalPages,
+                  action: () => handlePageChange(pagination.page + 1),
+                  disabled: pagination.page === pagination.totalPages,
                 },
                 {
                   label: "»",
-                  action: () => setPage(totalPages),
-                  disabled: page === totalPages,
+                  action: () => handlePageChange(pagination.totalPages),
+                  disabled: pagination.page === pagination.totalPages,
                 },
               ].map((btn) => (
                 <button

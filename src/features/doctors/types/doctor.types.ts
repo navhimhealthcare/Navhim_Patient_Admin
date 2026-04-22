@@ -75,11 +75,26 @@ export interface DoctorFilter {
   status:      'all' | 'active' | 'inactive'
 }
 
+export interface PaginationMeta {
+  total:      number
+  page:       number
+  limit:      number
+  totalPages: number
+}
+
 export interface DoctorApiResponse {
-  success: boolean
-  status:  number
-  message: string
-  data:    Doctor[]
+  success:    boolean
+  status:     number
+  message:    string
+  data: {
+    counts: {
+      total: number;
+      active: number;
+      inactive: number;
+    };
+    data: Doctor[];
+  };
+  pagination?: PaginationMeta
 }
 export interface CategoryApiResponse {
   success: boolean

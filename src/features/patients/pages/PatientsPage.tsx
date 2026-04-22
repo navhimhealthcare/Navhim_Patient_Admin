@@ -679,6 +679,7 @@ import deleteIcon from "../../../assets/images/delete.png";
 import { capitalize } from "../../../utils/helpers";
 import userIcon from "../../../assets/images/user.png";
 import locationIcon from "../../../assets/images/location.png";
+import { toTitleCase } from "../../../features/doctors/helpers/doctorHelper";
 const DEFAULT_FILTERS: PatientFilter = {
   search: "",
   gender: "",
@@ -689,8 +690,7 @@ const DEFAULT_FILTERS: PatientFilter = {
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 type ViewMode = "table" | "grid";
 
-const genderIcon = (g: string) =>
-  g === "male" ? "👨" : g === "female" ? "👩" : "🧑";
+
 
 /* ── Pagination ─────────────────────────────────────────────────────── */
 function Pagination({
@@ -1034,7 +1034,7 @@ export default function PatientPage() {
                       </div>
                       <div>
                         <p className="text-[13px] font-bold text-navy leading-none">
-                          {p.name}
+                          {toTitleCase(p.name)}
                         </p>
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <p className="text-[11px] text-gray-400 truncate max-w-[120px]">
@@ -1230,7 +1230,7 @@ export default function PatientPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="font-poppins font-bold text-[13.5px] text-navy leading-tight truncate">
-                          {capitalize(p.name)}
+                          {toTitleCase(p.name)}
                         </p>
                         <span
                           className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${p.isActive !== false ? "bg-success" : "bg-gray-300"}`}

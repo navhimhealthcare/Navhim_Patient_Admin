@@ -14,8 +14,7 @@ export const EXPERIENCE_OPTIONS = [
   { label: "Any", value: "" },
   { label: "0–5 yrs", value: "0-5" },
   { label: "5–10 yrs", value: "5-10" },
-  { label: "10–15 yrs", value: "10-15" },
-  { label: "15+ yrs", value: "15" },
+  { label: "10+ yrs", value: "10+" },
 ];
 
 export const EMPTY_FORM: DoctorFormValues = {
@@ -35,6 +34,15 @@ export const EMPTY_FORM: DoctorFormValues = {
 
 export const formatFee = (fee: number, isFree: boolean) =>
   isFree ? "Free" : `₹${fee}`;
+
+export const toTitleCase = (str: string) => {
+  if (!str) return "";
+  return str
+    .toLowerCase()
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
 
 export const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString("en-IN", {

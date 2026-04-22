@@ -14,6 +14,7 @@ import editIcon from "../../../assets/images/edit.png";
 import deleteIcon from "../../../assets/images/delete.png";
 import searchIcon from "../../../assets/images/search.png";
 import folderIcon from "../../../assets/images/folder.png";
+import { toTitleCase } from "../../../features/doctors/helpers/doctorHelper";
 
 type DeleteTarget =
   | { type: "category"; item: Category; categoryId?: string }
@@ -274,7 +275,7 @@ export default function CategoryPage() {
                         <p
                           className={`text-[13px] font-semibold truncate ${isSelected ? "text-white" : "text-navy"}`}
                         >
-                          {cat.name}
+                          {toTitleCase(cat.name)}
                         </p>
                         <p
                           className={`text-[11px] mt-0.5 ${isSelected ? "text-white/70" : "text-gray-400"}`}
@@ -475,7 +476,7 @@ export default function CategoryPage() {
                         {/* Name */}
                         <div className="flex-1 min-w-0">
                           <p className="text-[13px] font-semibold text-navy leading-tight">
-                            {sub.name}
+                            {toTitleCase(sub.name)}
                           </p>
                           <p className="text-[10.5px] text-gray-400 font-mono mt-1">
                             #{sub._id.slice(-6)}

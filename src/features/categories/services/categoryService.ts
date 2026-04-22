@@ -28,8 +28,14 @@ export const categoryService = {
   createSubCategory: (data: FormData) =>
     axiosInstance.post<SubCategorySingleResponse>('/subcategories/add', data, multipart),
 
-  updateSubCategory: (id: string, data: FormData) =>
-    axiosInstance.put<SubCategorySingleResponse>(`/subcategories/${id}`, data, multipart),
+  updateSubCategory: (id: string, data: FormData | object) => {
+    const isMultipart = data instanceof FormData;
+    return axiosInstance.put<SubCategorySingleResponse>(
+      `/subcategories/${id}`,
+      data,
+      isMultipart ? multipart : {}
+    );
+  },
 
   deleteSubCategory: (id: string) =>
     axiosInstance.delete(`/subcategories/${id}`),

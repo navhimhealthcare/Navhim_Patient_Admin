@@ -79,12 +79,21 @@ export interface SlotApiResponse {
   data: SlotItem[];
 }
 
+// ── Pagination ──────────────────────────────────────────────────────────
+export interface PaginationMeta {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 // ── API responses ─────────────────────────────────────────────────────
 export interface AppointmentListResponse {
   success: boolean;
   status: number;
   message: string;
   data: Appointment[];
+  pagination: PaginationMeta;
 }
 
 export interface AppointmentSingleResponse {

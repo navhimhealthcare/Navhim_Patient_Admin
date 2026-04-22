@@ -5,8 +5,8 @@ import {
 } from "../../hospital/component/types/hospital.types";
 
 export const hospitalService = {
-  getAll: () =>
-    axiosInstance.get<HospitalApiResponse>("/hospitals/hospital-list"),
+  getAll: (params?: object) =>
+    axiosInstance.get<HospitalApiResponse>("/hospitals/hospital-list", { params }),
 
   create: (data: object) =>
     axiosInstance.post<HospitalSingleResponse>("/hospitals/add", data),

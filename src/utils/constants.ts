@@ -1,16 +1,16 @@
 /// <reference types="vite/client" />
-const reportIcon = "/src/assets/images/report.png";
-const doctorIcon = "/src/assets/images/doctor.png";
-const pharmacyIcon = "/src/assets/images/pharmacy.png";
-const appointmentsIcon = "/src/assets/images/appointments.png";
-const dashboardIcon = "/src/assets/images/dashboard.png";
-const patientsIcon = "/src/assets/images/patient.png";
-const notificationIcon = "/src/assets/images/notification.png";
-const settingIcon = "/src/assets/images/setting.png";
-const activityLogIcon = "/src/assets/images/activityLog.png";
-const hospitalIcon = "/src/assets/images/hospital.png";
-const categoryIcon = "/src/assets/images/category.png";
-const communityPostIcon = "/src/assets/images/communityPost.png";
+import reportIcon from "../assets/images/report.png";
+import doctorIcon from "../assets/images/doctor.png"
+import pharmacyIcon from "../assets/images/pharmacy.png";
+import appointmentsIcon from "../assets/images/appointments.png";
+import dashboardIcon from "../assets/images/dashboard.png";
+import patientsIcon from "../assets/images/patient.png";
+import notificationIcon from "../assets/images/notification.png";
+import settingIcon from "../assets/images/setting.png";
+import activityLogIcon from "../assets/images/activityLog.png";
+import hospitalIcon from "../assets/images/hospital.png";
+import categoryIcon from "../assets/images/category.png";
+import communityPostIcon from "../assets/images/communityPost.png";
 export const NAV_ITEMS = [
   {
     section: "Main Menu",
@@ -120,32 +120,19 @@ export const LOCAL_DATA_STORE = {
 };
 
 export const QUICK_ACTIONS = [
+  { image: "👤", name: "Patient", bg: "bg-success-bg", path: "/app/patients" },
+  { image: "🧾", name: "Doctor", bg: "bg-warning-bg", path: "/app/doctors" },
   {
-    icon: "📅",
-    label: "New Appointment",
-    bg: "bg-brand-lighter",
-    path: "/app/appointments",
-  },
-  { icon: "👤", label: "Patient", bg: "bg-success-bg", path: "/app/patients" },
-  { icon: "🧾", label: "Doctor", bg: "bg-warning-bg", path: "/app/doctors" },
-  { icon: "🏥", label: "Hospital", bg: "bg-danger-bg", path: "/app/hospital" },
-  {
-    icon: "💊",
-    label: "Prescribe",
+    image: "💊",
+    name: "Prescribe",
     bg: "bg-brand-lighter",
     path: "/app/patients",
   },
   {
-    icon: "👥",
-    label: "Community",
+    image: "👥",
+    name: "Community",
     bg: "bg-success-bg",
     path: "/app/community",
   },
-  {
-    icon: "📊",
-    label: "View Report",
-    bg: "bg-warning-bg",
-    path: "/app/patients",
-  },
-  { icon: "🏷", label: "Category", bg: "bg-surface", path: "/app/categories" },
+  { image: "🏷", name: "Category", bg: "bg-surface", path: "/app/categories" },
 ];

@@ -1,5 +1,5 @@
 import { Doctor } from "../types/doctor.types";
-import { formatFee } from "../helpers/doctorHelper";
+import { formatFee, toTitleCase } from "../helpers/doctorHelper";
 import editIcon from "../../../assets/images/edit.png";
 import deleteIcon from "../../../assets/images/delete.png";
 interface Props {
@@ -69,7 +69,7 @@ export default function DoctorCard({
 
           <div className="flex-1 min-w-0">
             <p className="font-poppins font-bold text-[13.5px] text-navy leading-tight truncate">
-              {d.name}
+              {toTitleCase(d.name)}
             </p>
             <p className="text-[11.5px] text-brand-primary font-semibold mt-0.5">
               {d.specialization?.name || "N/A"}
@@ -119,11 +119,10 @@ export default function DoctorCard({
           </div>
         )}
 
-        {/* Actions */}
         <div className="flex gap-2">
           <button
-            // onClick={() => onToggle(d)}
-            className={`flex-shrink-0 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-colors cursor-not-allowed
+            onClick={() => onToggle(d)}
+            className={`flex-shrink-0 px-2.5 py-1.5 rounded-lg text-[11px] font-semibold transition-colors
               ${d.isActive ? "bg-success-bg text-green-700 hover:bg-green-100" : "bg-gray-100 text-gray-400 hover:bg-gray-200" }`}
           >
             {d.isActive ? "✅ Active" : "⛔ Inactive"}

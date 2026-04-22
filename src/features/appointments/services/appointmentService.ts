@@ -8,7 +8,7 @@ import {
 } from "../types/appointment.types";
 
 export const appointmentService = {
-  getAll: (params?: object) =>
+  getAll: (params?: any) =>
     axiosInstance.get<AppointmentListResponse>("/appointments/filterList", {
       params,
     }),

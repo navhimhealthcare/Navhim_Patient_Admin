@@ -1,9 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useHospitals } from "../../hospital/component/hooks/useHospitals";
-import {
-  filterHospitals,
-  getHospitalSummary,
-} from "../../hospital/component/hospitalHelpers";
 import { Hospital } from "../../hospital/component/types/hospital.types";
 import { SectionLoader } from "../../../components/Loader/Loader";
 import HospitalModal from "../../hospital/component/hospitalModal";
@@ -15,6 +11,7 @@ import locationIcon from "../../../assets/images/location.png";
 import editIcon from "../../../assets/images/edit.png";
 import deleteIcon from "../../../assets/images/delete.png";
 import hospitalsIcon from "../../../assets/images/hospital.png";
+import { toTitleCase } from "../../../features/doctors/helpers/doctorHelper";
 
 type FilterStatus = "all" | "active" | "inactive";
 type ViewMode = "table" | "grid";
@@ -70,8 +67,11 @@ function ActionBtn({
 export default function HospitalPage() {
   const {
     hospitals,
+    counts,
     loading,
     actionLoading,
+    pagination,
+    fetchAll,
     addHospital,
     editHospital,
     removeHospital,
@@ -85,8 +85,23 @@ export default function HospitalPage() {
   const [editTarget, setEditTarget] = useState<Hospital | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Hospital | null>(null);
 
-  const filtered = filterHospitals(hospitals, search, filterStatus);
-  const summary = getHospitalSummary(hospitals);
+  const searchRef = useRef<any>(null);
+
+  // Sync to server-side filtering
+  useEffect(() => {
+    if (searchRef.current) clearTimeout(searchRef.current);
+    searchRef.current = setTimeout(() => {
+      fetchAll(1, 10, { search, status: filterStatus });
+    }, 400);
+
+    return () => {
+      if (searchRef.current) clearTimeout(searchRef.current);
+    };
+  }, [search, filterStatus, fetchAll]);
+
+  const handlePageChange = (p: number) => {
+    fetchAll(p, 10, { search, status: filterStatus });
+  };
 
   const openAdd = () => {
     setEditTarget(null);
@@ -109,7 +124,7 @@ export default function HospitalPage() {
   const summaryCards = [
     {
       label: "Total Hospitals",
-      value: summary.total,
+      value: counts.total,
       icon: "🏥",
       color: "from-brand-primary/10 to-brand-primary/5",
       text: "text-brand-primary",
@@ -117,7 +132,7 @@ export default function HospitalPage() {
     },
     {
       label: "Active",
-      value: summary.active,
+      value: counts.active,
       icon: "✅",
       color: "from-success/10 to-success/5",
       text: "text-green-600",
@@ -125,7 +140,7 @@ export default function HospitalPage() {
     },
     {
       label: "Inactive",
-      value: summary.inactive,
+      value: counts.inactive,
       icon: "⛔",
       color: "from-gray-100 to-gray-50",
       text: "text-gray-400",
@@ -222,7 +237,7 @@ export default function HospitalPage() {
         </div>
 
         <span className="text-[12px] text-gray-300 font-medium ml-auto">
-          {filtered.length} of {summary.total} hospitals
+          {hospitals.length} of {pagination.total} hospitals
         </span>
       </div>
 
@@ -231,7 +246,7 @@ export default function HospitalPage() {
         <div className="bg-white rounded-2xl border border-brand-primary/[0.08]">
           <SectionLoader text="Fetching hospitals…" />
         </div>
-      ) : filtered.length === 0 ? (
+      ) : hospitals.length === 0 ? (
         <div className="bg-white rounded-2xl border border-brand-primary/[0.08] flex flex-col items-center justify-center py-20 gap-3">
           <img
             src={hospitalsIcon}
@@ -276,7 +291,7 @@ export default function HospitalPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((h, i) => (
+              {hospitals.map((h, i) => (
                 <tr
                   key={h._id}
                   style={{ animationDelay: `${i * 40}ms` }}
@@ -293,7 +308,7 @@ export default function HospitalPage() {
                       </div>
                       <div>
                         <p className="text-[13px] font-bold text-navy leading-none">
-                          {h.name}
+                          {toTitleCase(h.name)}
                         </p>
                         <p className="text-[10.5px] text-gray-300 mt-0.5 font-mono">
                           {h._id.slice(-8)}
@@ -366,7 +381,7 @@ export default function HospitalPage() {
       ) : (
         /* ── Grid ── */
         <div className="grid grid-cols-3 gap-5">
-          {filtered.map((h, i) => (
+          {hospitals.map((h, i) => (
             <HospitalCard
               key={h._id}
               hospital={h}
@@ -375,6 +390,78 @@ export default function HospitalPage() {
               onDelete={setDeleteTarget}
             />
           ))}
+        </div>
+      )}
+
+      {/* ── Pagination ── */}
+      {!loading && (pagination.total > 0 || hospitals.length > 0) && (
+        <div className="flex items-center justify-between bg-white rounded-2xl border border-brand-primary/[0.08] px-5 py-3 mt-6">
+          <span className="text-[12px] text-gray-400 font-medium">
+            Page {pagination.page || 1} of {pagination.totalPages || 1}{" "}
+            &nbsp;·&nbsp; {pagination.total || hospitals.length} total hospitals
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => handlePageChange(1)}
+              disabled={pagination.page === 1}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-[13px] text-gray-400 hover:bg-surface hover:text-brand-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              «
+            </button>
+            <button
+              onClick={() => handlePageChange(pagination.page - 1)}
+              disabled={pagination.page === 1}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-[13px] text-gray-400 hover:bg-surface hover:text-brand-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              ‹
+            </button>
+            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+              .filter(
+                (p) =>
+                  p === 1 ||
+                  p === pagination.totalPages ||
+                  Math.abs(p - (pagination.page || 1)) <= 1,
+              )
+              .reduce<(number | "…")[]>((acc, p, idx, arr) => {
+                if (idx > 0 && (p as number) - (arr[idx - 1] as number) > 1)
+                  acc.push("…");
+                acc.push(p);
+                return acc;
+              }, [])
+              .map((p, idx) =>
+                p === "…" ? (
+                  <span
+                    key={`ellipsis-${idx}`}
+                    className="w-8 h-8 flex items-center justify-center text-[12px] text-gray-300"
+                  >
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={p}
+                    onClick={() => handlePageChange(p as number)}
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center text-[13px] font-semibold transition-all
+                      ${pagination.page === p ? "bg-brand-primary text-white shadow-sm" : "text-gray-500 hover:bg-surface hover:text-brand-primary"}`}
+                  >
+                    {p}
+                  </button>
+                ),
+              )}
+            <button
+              onClick={() => handlePageChange(pagination.page + 1)}
+              disabled={pagination.page === pagination.totalPages}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-[13px] text-gray-400 hover:bg-surface hover:text-brand-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              ›
+            </button>
+            <button
+              onClick={() => handlePageChange(pagination.totalPages)}
+              disabled={pagination.page === pagination.totalPages}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-[13px] text-gray-400 hover:bg-surface hover:text-brand-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              »
+            </button>
+          </div>
         </div>
       )}
 

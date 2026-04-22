@@ -4,6 +4,7 @@ import { Hospital } from "../component/types/hospital.types";
 import editIcon from "../../../assets/images/edit.png";
 import deleteIcon from "../../../assets/images/delete.png";
 import hospitalsIcon from "../../../assets/images/hospital.png";
+import { toTitleCase } from "../../../features/doctors/helpers/doctorHelper";
 interface HospitalCardProps {
   hospital: Hospital;
   index: number;
@@ -100,7 +101,7 @@ export default function HospitalCard({
           </div>
           <div>
             <p className="font-poppins font-bold text-[14px] text-navy leading-tight">
-              {h.name}
+              {toTitleCase(h.name)}
             </p>
             <div className="flex items-center gap-1 mt-0.5">
               <img

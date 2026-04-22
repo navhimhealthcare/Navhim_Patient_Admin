@@ -66,7 +66,13 @@ function NavItem({ item, collapsed, isOpen, onToggleSub }) {
           )}
 
           {/* Icon */}
-          {item.icon?.startsWith("/src/assets") ? (
+          {typeof item.icon === "string" && item.icon.startsWith("http") ? (
+            <img
+              src={item.icon}
+              alt={item.label}
+              className="w-5 h-5 object-contain"
+            />
+          ) : typeof item.icon === "string" && item.icon.includes(".png") ? (
             item.iconFilter === "brand" ? (
               <div
                 className="w-5 h-5 flex-shrink-0 opacity-60 group-hover:opacity-90 transition-opacity bg-[#3bace0]"
@@ -89,7 +95,7 @@ function NavItem({ item, collapsed, isOpen, onToggleSub }) {
               />
             )
           ) : (
-            <span className="text-base leading-none flex-shrink-0 w-5 h-5 flex items-center justify-center">
+            <span className="text-base flex items-center justify-center w-5 h-5">
               {item.icon}
             </span>
           )}

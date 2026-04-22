@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useDoctors } from "../hooks/useDoctors";
-import { filterDoctors, getDoctorSummary } from "../helpers/doctorHelper";
+import { toTitleCase } from "../helpers/doctorHelper";
 import { Doctor, DoctorFilter } from "../types/doctor.types";
 import { SectionLoader } from "../../../components/Loader/Loader";
 import DoctorCard from "../components/doctorCard";
@@ -26,27 +26,31 @@ type ViewMode = "grid" | "table";
 export default function DoctorPage() {
   const {
     doctors,
+    counts,
     loading,
     actionLoading,
     categories,
+    pagination,
+    fetchAll,
     addDoctor,
     editDoctor,
     removeDoctor,
     toggleStatus,
+    fetchCategories,
   } = useDoctors();
-  const { hospitals } = useHospitals();
+  const { hospitals, fetchAll: fetchHospitals } = useHospitals();
   const [filters, setFilters] = useState<DoctorFilter>(DEFAULT_FILTERS);
-  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [viewMode, setViewMode] = useState<ViewMode>("table");
   const [modalOpen, setModalOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<Doctor | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Doctor | null>(null);
-  console.log("doctors", doctors);
 
-  const filtered = useMemo(
-    () => filterDoctors(doctors, filters),
-    [doctors, filters],
-  );
-  const summary = useMemo(() => getDoctorSummary(doctors), [doctors]);
+  // Initial fetch for reference data (categories/hospitals)
+  useEffect(() => {
+    fetchCategories();
+    fetchHospitals(1, 100); // Fetch enough for filter list
+  }, [fetchCategories, fetchHospitals]);
+
 
   const openAdd = () => {
     setEditTarget(null);
@@ -63,16 +67,32 @@ export default function DoctorPage() {
   const merge = (p: Partial<DoctorFilter>) =>
     setFilters((f) => ({ ...f, ...p }));
 
+  // Re-fetch when ANY filter changes (debounced 400ms) — resets to page 1
+  const searchRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (searchRef.current) clearTimeout(searchRef.current);
+    searchRef.current = setTimeout(() => {
+      fetchAll(1, pagination.limit, filters);
+    }, 400);
+    return () => {
+      if (searchRef.current) clearTimeout(searchRef.current);
+    };
+  }, [filters, pagination.limit, fetchAll]);
+
+  const handlePageChange = (newPage: number) => {
+    fetchAll(newPage, pagination.limit, filters);
+  };
+
   const handleDelete = async () => {
     if (!deleteTarget) return;
-    const ok = await removeDoctor(deleteTarget);
+    const ok = await removeDoctor(deleteTarget._id, deleteTarget.name);
     if (ok) setDeleteTarget(null);
   };
 
   const summaryCards = [
     {
       label: "Total Doctors",
-      value: summary.total,
+      value: counts?.total,
       icon: "🩺",
       color: "from-brand-primary/10 to-brand-primary/5",
       text: "text-brand-primary",
@@ -80,7 +100,7 @@ export default function DoctorPage() {
     },
     {
       label: "Active",
-      value: summary.active,
+      value: counts?.active,
       icon: "✅",
       color: "from-success/10 to-success/5",
       text: "text-green-600",
@@ -88,7 +108,7 @@ export default function DoctorPage() {
     },
     {
       label: "Inactive",
-      value: summary.inactive,
+      value: counts?.inactive,
       icon: "⛔",
       color: "from-gray-100 to-gray-50",
       text: "text-gray-400",
@@ -96,7 +116,13 @@ export default function DoctorPage() {
     },
     {
       label: "Avg. Rating",
-      value: `⭐ ${summary.avgRating}`,
+      value: `⭐ ${
+        doctors.length
+          ? (
+              doctors.reduce((s, d) => s + (d.rating || 0), 0) / doctors.length
+            ).toFixed(1)
+          : "0.0"
+      }`,
       icon: "⭐",
       color: "from-warning/10 to-warning/5",
       text: "text-warning",
@@ -168,8 +194,8 @@ export default function DoctorPage() {
         onReset={() => setFilters(DEFAULT_FILTERS)}
         specialties={categories}
         hospitals={hospitals}
-        totalShown={filtered.length}
-        total={doctors.length}
+        totalShown={doctors.length}
+        total={pagination.total}
       />
 
       {/* Content */}
@@ -177,7 +203,7 @@ export default function DoctorPage() {
         <div className="bg-white rounded-2xl border border-brand-primary/[0.08]">
           <SectionLoader text="Fetching doctors…" />
         </div>
-      ) : filtered.length === 0 ? (
+      ) : doctors.length === 0 ? (
         <div className="bg-white rounded-2xl border border-brand-primary/[0.08] flex flex-col items-center justify-center py-20 gap-3">
           <span className="text-5xl">🩺</span>
           <p className="font-poppins font-bold text-navy text-[15px]">
@@ -195,7 +221,7 @@ export default function DoctorPage() {
         </div>
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-3 gap-5">
-          {filtered.map((d, i) => (
+          {doctors.map((d, i) => (
             <DoctorCard
               key={d._id}
               doctor={d}
@@ -232,7 +258,7 @@ export default function DoctorPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((d, i) => (
+              {doctors.map((d, i) => (
                 <tr
                   key={d._id}
                   style={{ animationDelay: `${i * 40}ms` }}
@@ -253,7 +279,7 @@ export default function DoctorPage() {
                       )}
                       <div>
                         <p className="text-[13px] font-bold text-navy leading-none">
-                          {d.name}
+                          {toTitleCase(d.name)}
                         </p>
                         <p className="text-[10.5px] text-gray-300 mt-0.5 font-mono">
                           {d._id?.slice(-8)}
@@ -296,8 +322,9 @@ export default function DoctorPage() {
                   </td>
                   <td className="px-4 py-3.5">
                     <button
-                      // onClick={() => toggleStatus(d)}
-                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold cursor-not-allowed
+                      onClick={() => toggleStatus(d)}
+                      disabled={actionLoading}
+                      className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold transition-all
                         ${d.isActive ? "bg-success-bg text-green-700" : "bg-gray-100 text-gray-400"}`}
                     >
                       <span
@@ -334,6 +361,81 @@ export default function DoctorPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {!loading && (pagination.total > 0 || doctors.length > 0) && (
+        <div className="flex items-center justify-between bg-white rounded-2xl border border-brand-primary/[0.08] px-5 py-3">
+          <span className="text-[12px] text-gray-400 font-medium">
+            Page {pagination.page || 1} of {pagination.totalPages || 1}{" "}
+            &nbsp;·&nbsp; {pagination.total || doctors.length} total
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => handlePageChange(1)}
+              disabled={pagination.page === 1}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-[13px] text-gray-400 hover:bg-surface hover:text-brand-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              «
+            </button>
+            <button
+              onClick={() => handlePageChange(pagination.page - 1)}
+              disabled={pagination.page === 1}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-[13px] text-gray-400 hover:bg-surface hover:text-brand-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              ‹
+            </button>
+            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1)
+              .filter(
+                (p) =>
+                  p === 1 ||
+                  p === pagination.totalPages ||
+                  Math.abs(p - (pagination.page || 1)) <= 1,
+              )
+              .reduce<(number | "…")[]>((acc, p, idx, arr) => {
+                if (idx > 0 && p - (arr[idx - 1] as number) > 1) acc.push("…");
+                acc.push(p);
+                return acc;
+              }, [])
+              .map((p, idx) =>
+                p === "…" ? (
+                  <span
+                    key={`ellipsis-${idx}`}
+                    className="w-8 h-8 flex items-center justify-center text-[12px] text-gray-300"
+                  >
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={p}
+                    onClick={() => handlePageChange(p as number)}
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center text-[13px] font-semibold transition-all
+                      ${
+                        pagination.page === p
+                          ? "bg-brand-primary text-white shadow-sm"
+                          : "text-gray-500 hover:bg-surface hover:text-brand-primary"
+                      }`}
+                  >
+                    {p}
+                  </button>
+                ),
+              )}
+            <button
+              onClick={() => handlePageChange(pagination.page + 1)}
+              disabled={pagination.page === pagination.totalPages}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-[13px] text-gray-400 hover:bg-surface hover:text-brand-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              ›
+            </button>
+            <button
+              onClick={() => handlePageChange(pagination.totalPages)}
+              disabled={pagination.page === pagination.totalPages}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-[13px] text-gray-400 hover:bg-surface hover:text-brand-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              »
+            </button>
+          </div>
         </div>
       )}
 
